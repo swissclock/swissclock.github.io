@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://kit.fontawesome.com/9391e12782.js" crossorigin="anonymous"></script>
+    <title></title>
+</head>
+<body>
+    <nav>
+        <div>
+            <a href="#" id="bio-link" class="nav-links">bio</a>           
+        </div>
+        <div>
+            <a href="#" id="projects-link" class="nav-links">projects</a>
+        </div>
+        <div>  
+            <a href="#" id="publications-link" class="nav-links">publications</a>            
+        </div>
+    </nav>
+    <main>
+        <div id="bio" class="hidden">
+            <div class="bio-wrapper">
+                
+                <div id="bio-content">
+                    I am a highly skilled and accomplished scientist with a BSc in chemistry, MSc and PhD in neuroscience from Ben-Gurion University. With a background in animal models of epilepsy, I have developed novel therapeutic approaches for epilepsy and blood-brain barrier injury. I have studied the function of the blood-brain barrier in both health and disease and identified a mechanism for its modulation by neuronal activity, and its link to synaptic plasticity. Currently working in preclinical R&D for the company Modulight.bio, I am developing a novel optogenetic-based therapeutic approach for a variety of neurological disorders. Outside of work, I enjoy football, coding, and making things.
+                </div><div id="cursor"></div>   
+            </div>
+        </div>
+        <div id="projects" class="hidden">
+            <div class="article-wrapper">   
+                    <article data-index="0" data-status="active">   
+                        <div class="card">
+                            <div class="card-content">
+                                <div class="card-image">
+                                    <i class="fa-regular fa-futbol"></i>
+                                </div>
+                                <div class="card-info-wrapper">
+                                    <div class="card-info">
+                                        <i class="fa-regular fa-futbol"></i>
+                                        <div class="card-info-title">
+                                        <h3>Football Predictor</h3>  
+                                        <h4>Israeli Premier League match result prediction</h4>
+                                        </div>    
+                                    </div>
+                            </div>
+                        </div>
+                    </article>
+                    <article data-index="1" data-status="inactive">
+                        <div class="card" >
+                            <div class="card-content">
+                                <div class="card-image">
+                                <i class="fa-solid fa-font"></i>
+                                </div>
+                                <div class="card-info-wrapper">
+                                    <div class="card-info">
+                                        <i class="fa-solid fa-font"></i>
+                                        <div class="card-info-title">
+                                        <h3>ASCII art generator</h3>  
+                                        <h4>Create ASCII art from images</h4>
+                                        </div>    
+                                    </div>  
+                                </div>
+                            </div>
+                        </div>
+                    </article>
+                    <article data-index="2" data-status="inactive">
+                        <div class="card" >
+                            <div class="card-content">
+                                <div class="card-image">
+                                    <i class="fa-solid fa-database"></i>
+                                </div>
+                                <div class="card-info-wrapper">
+                                    <div class="card-info">
+                                        <i class="fa-regular fa-file-excel"></i>
+                                        <div class="card-info-title">
+                                        <h3>Results Scraper</h3>  
+                                        <h4>Python based web scraper to index and create a database of Israeli Premier League match results </h4>
+                                        </div>    
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </article>
+                
+            </div>
+            <div class="article-nav">
+                <button class="article-nav-button" type="button" onclick="handleLeftClick()">
+                <i class="fa-solid fa-arrow-left"></i>
+                </button>
+                <button class="article-nav-button" type="button" onclick="handleRightClick()">
+                <i class="fa-solid fa-arrow-right"></i>
+                </button>
+            </div>
+        </div>
+        <div id="publications" class="hidden">
+            <div id="publications-content">
+                <div class="carousel">
+                    <div class="carousel-inner">
+                      <article class="carousel-card card-info-title">
+                        <a href="https://pubmed.ncbi.nlm.nih.gov/35478597/" class="caro-link">
+                        <h3 id="article-title">
+                            Craniotomy for acute monitoring of pial vessels in the rodent brain
+                        </h3></a>
+                        <h4 id="article-title">    
+                            Refat Aboghazleh, Baraah Alkahmous, Evyatar Swissa, Saara Mansoor, Alon Friedman, Ofer Prager
+                        </h4>
+                        <p id="abstract">
+                            A growing awareness for vascular contribution to pathogenesis of brain diseases increases the need for techniques that allow high-resolution imaging and quantification of changes in function and structure of cerebral microvessels. Cerebral vessels are very sensitive structures, making them vulnerable for injury. In addition, they are uniquely characterized with the blood-brain barrier, and an extra caution is required during procedures that involve engagement of cerebral vessels (i.e., craniotomy). Using state of the art facilities, including 3D intravital microscope, we describe here in details: The steps and equipment required for drilling a craniotomy and removing of the dura, while keeping brain parenchyma and vessels intact. This enables long duration of live and direct monitoring of pial vessels and imaging of BBB permeability. We present the craniotomy procedure that relevant and compatible with imaging pial vessels and monitoring the blood-brain barrier in small rodents.
+                        </p>
+                      </article>
+                      <article class="carousel-card card-info-title">
+                        <a href="https://pubmed.ncbi.nlm.nih.gov/33724543/" class="caro-link">
+                        <h3 id="article-title">
+                            PVP-coated Gd-grafted nanodiamonds as a novel and potentially safer contrast agent for in vivo MRI
+                        </h3></a>
+                        <h4 id="article-title">    
+                            Alexander M Panich, Moti Salti, Ofer Prager, Evyatar Swissa, Yuri V Kulvelis, Elena B Yudina, Alexander E Aleksenskii, Shaul D Goren, Alexander Ya Vul', Alexander I Shames
+                        </h4>
+                        <p id="abstract">
+                            Testing the potential use of saline suspension of polyvinylpyrrolidone (PVP)-coated gadolinium(Gd)-grafted detonation nanodiamonds (DND) as a novel contrast agent in MRI. Stable saline suspensions of highly purified de-agglomerated Gd-grafted DND particles coated by a PVP protective shell were prepared. T1 and T2 proton relaxivities of the suspensions with varying gadolinium concentration were measured at 8 Tesla. A series of ex vivo (phantom) and in vivo dynamic scans were obtained in 3 Tesla MRI using PVP-coated Gd-grafted DND and gadoterate meglumin in equal concentrations of gadolinium, and then T1-weighted hyperintensity was compared. The proton relaxivities of PVP-coated Gd-grafted DND were found to be r1 = 15.9 ± 0.8 s-1 mM-1 and r2 = 262 ± 15 s-1 mM-1, respectively, which are somewhat less than those for uncoated Gd-grafted DND but still high enough. Ex vivo MRI evaluation of PVP-coated Gd-grafted DND results with a dose-dependent T1-weighted hyperintensity with a significant advantage over the same for gadoterate meglumin. The same was found when the 2 contrast agents were tested in vivo. The novel MRI contrast agent - saline suspensions of PVP-coated Gd-grafted DND - provides significantly higher signal intensities than the common tracer gadoterate meglumin, therefore increasing its potential for a safer use in clinics.
+                        </p>
+                      </article>
+                      <article class="carousel-card card-info-title">
+                        <a href="https://pubmed.ncbi.nlm.nih.gov/32084435" class="caro-link">
+                        <h3 id="article-title">
+                            Midazolam and isoflurane combination reduces late brain damage in the paraoxon-induced status epilepticus rat model
+                        </h3></a>                        
+                        <h4 id="author-list">    
+                            Evyatar Swissa, Guy Bar-Klein, Yonatan Serlin, Itai Weissberg, Lyna Kamintsky, Arik Eisenkraft, Liran Statlender, Shai Shrot, Yossi Rosman, Ofer Prager, Alon Friedman
+                        </h4>
+                        <p id="abstract">
+                            Organophosphates (OPs) are widely used as pesticides and have been employed as warfare agents. OPs inhibit acetylcholinesterase, leading to over-stimulation of cholinergic synapses and can cause status epilepticus (SE). OPs poisoning can result in irreversible brain damage and death. Despite termination of SE, recurrent seizures and abnormal brain activity remain common sequelae often associated with long-term neural damage and cognitive dysfunction. Therefore, early treatment for prevention of seizures is of high interest. Using a rat model of paraoxon poisoning, we tested the efficacy of different neuroprotective and anti-epileptic drugs (AEDs) in suppressing early seizures and preventing brain damage. Electrocorticographic recordings were performed prior, during and after injection of 4.5 LD50 paraoxon, followed by injections of atropine and toxogonin (obidoxime) to prevent death. Thirty minutes later, rats were injected with midazolam alone or in combination with different AEDs (lorazepam, valproic acid, phenytoin) or neuroprotective drugs (losartan, isoflurane). Outcome measures included SE duration, early seizures frequency and epileptiform activity duration in the first 24h after poisoning. To assess delayed brain damage, we performed T2-weighted magnetic resonance imaging one month after poisoning. SE duration and the number of recurrent seizures were not affected by the addition of any of the drugs tested. Delayed brain injury was most prominent in the septum, striatum, amygdala and piriform network. Only isoflurane anesthesia significantly reduced brain damage. We show that acute treatment with isoflurane, but not AEDs, reduces brain damage following SE. This may offer a new therapeutic approach for exposed individuals.
+                        </p>
+                      </article>
+                      <article class="carousel-card card-info-title">
+                        <a href="https://pubmed.ncbi.nlm.nih.gov/33027965/" class="caro-link">
+                        <h3 id="article-title">
+                            TMS-Induced Controlled BBB Opening: Preclinical Characterization and Implications for Treatment of Brain Cancer
+                        </h3></a>                        
+                        <h4 id="author-list">    
+                            Udi Vazana, Lior Schori, Uri Monsonego, Evyatar Swissa, Gabriel S Pell, Yiftach Roth, Pnina Brodt, Alon Friedman, Ofer Prager
+                        </h4>
+                        <p id="abstract">
+                            Proper neuronal function requires strict maintenance of the brain's extracellular environment. Therefore, passage of molecules between the circulation and brain neuropil is tightly regulated by the blood-brain barrier (BBB). While the BBB is vital for normal brain function, it also restricts the passage of drugs, potentially effective in treating brain diseases, into the brain. Despite previous attempts, there is still an unmet need to develop novel approaches that will allow safe opening of the BBB for drug delivery. We have recently shown in experimental rodents and in a pilot human trial that low-frequency, high-amplitude repetitive transcranial magnetic stimulation (rTMS) allows the delivery of peripherally injected fluorescent and Gd-based tracers into the brain. The goals of this study were to characterize the duration and safety level of rTMS-induced BBB opening and test its capacity to enhance the delivery of the antitumor growth agent, insulin-like growth factor trap, across the BBB. We employed direct vascular and magnetic resonance imaging, as well as electrocorticography recordings, to assess the impact of rTMS on brain vascular permeability and electrical activity, respectively. Our findings indicate that rTMS induces a transient and safe BBB opening with a potential to facilitate drug delivery into the brain.
+                        </p>
+                      </article>
+                      <article class="carousel-card card-info-title">
+                        <a href="https://pubmed.ncbi.nlm.nih.gov/31711869/" class="caro-link">
+                        <h3 id="article-title">
+                            Blood-brain barrier dysfunction in status epileptics: Mechanisms and role in epileptogenesis
+                        </h3></a>                        
+                        <h4 id="author-list">    
+                            Evyatar Swissa, Yonatan Serlin, Udi Vazana, Ofer Prager, Alon Friedman
+                        </h4>
+                        <p id="abstract">
+                            The blood-brain barrier (BBB), a unique anatomical and physiological interface between the central nervous system (CNS) and the peripheral circulation, is essential for the function of neural circuits. Interactions between the BBB, cerebral blood vessels, neurons, astrocytes, microglia, and pericytes form a dynamic functional unit known as the neurovascular unit (NVU). The NVU-BBB crosstalk plays a key role in the regulation of blood flow, response to injury, neuronal firing, and synaptic plasticity. Blood-brain barrier dysfunction (BBBD), a hallmark of brain injury, is a prominent finding in status epilepticus. Blood-brain barrier dysfunction is observed within the first hour of status epilepticus, and in epileptogenic brain regions, may last for months. Blood-brain barrier dysfunction was shown to have a role in astroglial dysfunction, neuroinflammation, increasing neural excitability, reduction of seizure threshold, excitatory synaptogenesis, impaired plasticity, and epileptogenesis. A key signaling pathway associated with BBBD-induced neurovascular dysfunction is the transforming growth factor beta (TGF-β) proinflammatory pathway, activated by the extravasation of serum albumin into the brain when BBB functions are compromised. Specific small molecules blocking TGF-β, and the nonspecific, Food and Drug Administration (FDA) approved blocker and angiotensin antagonist losartan, were shown to reduce BBBD and block epileptogenesis. With these encouraging preclinical data, we have developed imaging approach to quantitatively assess BBBD as a diagnostic, predictive, and pharmacodynamic biomarker after brain injury. Clinical trials in the foreseen future are expected to test the feasibility of BBB-targeted diagnostic coupled therapy in status epileptics and seizure disorders.
+                        </p>
+                      </article>
+                      <article class="carousel-card card-info-title">
+                        <a href="https://pubmed.ncbi.nlm.nih.gov/31801888/" class="caro-link">
+                        <h3 id="article-title">
+                            Paroxysmal slow cortical activity in Alzheimer's disease and epilepsy is associated with blood-brain barrier dysfunction
+                        </h3></a>                        
+                        <h4 id="author-list">    
+                            Dan Z Milikovsky, Jonathan Ofer, Vladimir V Senatorov Jr, Aaron R Friedman, Ofer Prager, Liron Sheintuch, Netta Elazari, Ronel Veksler, Daniel Zelig, Itai Weissberg, Guy Bar-Klein, Evyatar Swissa, Erez Hanael, Gal Ben-Arie, Osnat Schefenbauer, Lyna Kamintsky, Rotem Saar-Ashkenazy, Ilan Shelef, Merav H Shamir, Ilan Goldberg, Amir Glik, Felix Benninger, Daniela Kaufer, Alon Friedman
+                        </h4>
+                        <p id="abstract">
+                            A growing body of evidence shows that epileptic activity is frequent but often undiagnosed in patients with Alzheimer's disease (AD) and has major therapeutic implications. Here, we analyzed electroencephalogram (EEG) data from patients with AD and found an EEG signature of transient slowing of the cortical network that we termed paroxysmal slow wave events (PSWEs). The occurrence per minute of the PSWEs was correlated with level of cognitive impairment. Interictal (between seizures) PSWEs were also found in patients with epilepsy, localized to cortical regions displaying blood-brain barrier (BBB) dysfunction, and in three rodent models with BBB pathology: aged mice, young 5x familial AD model, and status epilepticus-induced epilepsy in young rats. To investigate the potential causative role of BBB dysfunction in network modifications underlying PSWEs, we infused the serum protein albumin directly into the cerebral ventricles of naïve young rats. Infusion of albumin, but not artificial cerebrospinal fluid control, resulted in high incidence of PSWEs. Our results identify PSWEs as an EEG manifestation of nonconvulsive seizures in patients with AD and suggest BBB pathology as an underlying mechanism and as a promising therapeutic target. 
+                        </p>
+                      </article>
+                      <article class="carousel-card card-info-title">
+                        <a href="https://pubmed.ncbi.nlm.nih.gov/28444141/" class="caro-link">
+                        <h3 id="article-title">         
+                            Imaging blood-brain barrier dysfunction as a biomarker for epileptogenesis
+                        </h3></a>                        
+                        <h4 id="author-list">    
+                            Guy Bar-Klein, Svetlana Lublinsky, Lyn Kamintsky, Iris Noyman, Ronel Veksler, Hotjensa Dalipaj, Vladimir V Senatorov Jr, Evyatar Swissa, Dror Rosenbach, Netta Elazary, Dan Z Milikovsky, Nadav Milk, Michael Kassirer, Yossi Rosman, Yonatan Serlin, Arik Eisenkraft, Yoash Chassidim, Yisrael Parmet, Daniela Kaufer, Alon Friedman
+                        </h4>
+                        <p id="abstract">
+                            A biomarker that will enable the identification of patients at high-risk for developing post-injury epilepsy is critically required. Microvascular pathology and related blood-brain barrier dysfunction and neuroinflammation were shown to be associated with epileptogenesis after injury. Here we used prospective, longitudinal magnetic resonance imaging to quantitatively follow blood-brain barrier pathology in rats following status epilepticus, late electrocorticography to identify epileptic animals and post-mortem immunohistochemistry to confirm blood-brain barrier dysfunction and neuroinflammation. Finally, to test the pharmacodynamic relevance of the proposed biomarker, two anti-epileptogenic interventions were used; isoflurane anaesthesia and losartan. Our results show that early blood-brain barrier pathology in the piriform network is a sensitive and specific predictor (area under the curve of 0.96, P < 0.0001) for epilepsy, while diffused pathology is associated with a lower risk. Early treatments with either isoflurane anaesthesia or losartan prevented early microvascular damage and late epilepsy. We suggest quantitative assessment of blood-brain barrier pathology as a clinically relevant predictive, diagnostic and pharmacodynamics biomarker for acquired epilepsy.
+                        </p>
+                      </article>
+                      <article class="carousel-card card-info-title">
+                        <a href="https://pubmed.ncbi.nlm.nih.gov/25377630/" class="caro-link">
+                        <h3 id="article-title">         
+                            sec-Butyl-propylacetamide (SPD) and two of its stereoisomers rapidly terminate paraoxon-induced status epilepticus in rats                        </h3></a>                        
+                        <h4 id="author-list">    
+                            Guy Bar-Klein, Evyatar Swissa, Lyn Kamintsky, Tawfeeq Shekh-Ahmad, Rotem Saar-Ashkenazy, Yechiel Hubary, Shai Shrot, Liran Stetlander, Arik Eisenkraft, Alon Friedman, Meir Bialer
+                        </h4>
+                        <p id="abstract">
+                            Objective: Organophosphates (OPs) are commonly used insecticides for agriculture and domestic purposes, but may also serve as nerve agents. Exposure to OPs result in overstimulation of the cholinergic system and lead to status epilepticus (SE), a life-threatening condition that is often resistant to treatment. SE is associated with significant neuronal damage, neurocognitive dysfunction, and the development of lifelong epilepsy. Therefore, rapid termination of SE and prevention of brain damage is of high interest. Here we tested the efficacy of sec-butyl-propylacetamide (SPD) and two of its individual stereoisomers, (2S,3S)-SPD and (2R,3R)-SPD, in discontinuing OP-induced seizures. SPD is a one carbon homolog of valnoctamide, a central nervous system (CNS)-active constitutional isomer of valproic acid (VPA) corresponding amide valpromide.
+                            Methods: Rats were implanted with epidural telemetric electrodes to allow electrocorticography (ECoG) recording 24 h prior, during and 24 h after poisoning with the OP paraoxon (at a dose equivalent to 1.4 LD50 Median lethal dose). All rats were provided with antidotal treatment of atropine and toxogonin. Epileptic activity was measured using a novel automated system to evaluate the different effects of midazolam, SPD, and its individual stereoisomers in comparison to nontreated controls.
+                            Results: Treatment with SPD or its individual stereoisomer (2S,3S)-SPD significantly shorten paraoxon-induced SE and reduced the duration of recorded pathologic activity after SE was terminated. (2S,3S)-SPD was superior to racemic-SPD in diminishing delayed pathologic epileptiform activity within the first 8 h after SE.
+                            Significance: These results suggest SPD as an efficient drug for the rapid termination of SE and pathological epileptiform activity following OP poisoning, a strategy to reduce neuronal dysfunction and the risk for lifelong epilepsy.
+                        </p>
+                      </article>
+                   </div>
+                </div>
+                <div class="caro-nav">
+                    <button id="prev-button" type="button" ><i class="fa-solid fa-arrow-left"></i></button>
+                    <button id="next-button" type="button" ><i class="fa-solid fa-arrow-right"></i></button>                    
+                </div>
+            </div>
+        </div>
+    </main>
+    <footer>    
+        <a class="footer-link" href="https://github.com/evyatarsw">
+            <i class="fa-brands fa-linkedin-in"></i>
+        </a>
+        <a class="footer-link" href="https://www.linkedin.com/in/evyatar-swissa-458283240"> 
+            <i class="fa-brands fa-square-github"></i>
+        </a>
+    </footer>
+</body>
+<script src="toggle.js"></script>
+<script src="cards.js"></script>
+<script src="carousel.js"></script>
+<script src="caro.js"></script>
+</html>
