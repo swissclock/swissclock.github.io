@@ -1,16 +1,23 @@
-let toggle1 = true;
+    let toggle1 = false;
     let toggle2 = false;
     let toggle3 = false;
+    let toggle4 = false;
     document.addEventListener('click', function(event) {
-        if (event.target.matches('a')) {
+        if (event.target.matches('h1')) {
         if (event.target.matches('#bio-link')) {
         toggle1 = true;
         toggle2 = false;
         toggle3 = false;
-        } else if (event.target.matches('#projects-link')) {
+        } else if (event.target.matches('#science-link')) {
         toggle1 = false;
+        toggle2 = false;
+        toggle3 = false;
+        toggle4 = true;
+        } else if(event.target.matches('#fun-link')) {
+        toggle1 = false;    
         toggle2 = true;
         toggle3 = false;
+        toggle4 = false;
         } else if (event.target.matches('#publications-link')) {
         toggle1 = false;
         toggle2 = false;

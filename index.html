@@ -8,29 +8,33 @@
 </head>
 <body>
     <nav>
-        <div>
-            <a href="#" id="bio-link" class="nav-links">bio</a>           
+        <div class="nav-item">
+            <a href="#" class="nav-links"><h1 data-value="bio" id="bio-link">bio</h1></a>         
         </div>
-        <div>
-            <a href="#" id="projects-link" class="nav-links">projects</a>
+        <div class="nav-item submenu-trigger">
+            <a href="#" class="nav-links"><h1 data-value="projects" id="projects-link">projects</h1></a>
+            <div class="sub-menu">
+                <a href="#" class="nav-links submenu-item"><h1 data-value="science" id="science-link">science</h1></a>
+                <a href="#" class="nav-links submenu-item"><h1 data-value="fun" id="fun-link">fun</h1></a>
+            </div>
         </div>
-        <div>  
-            <a href="#" id="publications-link" class="nav-links">publications</a>            
+        <div class="nav-item">  
+            <a href="#" class="nav-links"><h1 data-value="publications" id="publications-link">publications</h1></a>            
         </div>
     </nav>
     <main>
         <div id="bio" class="hidden">
-            <div class="bio-wrapper">
-                
-                <div id="bio-content">
-                    I am a highly skilled and accomplished scientist with a BSc in chemistry, MSc and PhD in neuroscience from Ben-Gurion University. With a background in animal models of epilepsy, I have developed novel therapeutic approaches for epilepsy and blood-brain barrier injury. I have studied the function of the blood-brain barrier in both health and disease and identified a mechanism for its modulation by neuronal activity, and its link to synaptic plasticity. Currently working in preclinical R&D for the company Modulight.bio, I am developing a novel optogenetic-based therapeutic approach for a variety of neurological disorders. Outside of work, I enjoy football, coding, and making things.
-                </div><div id="cursor"></div>   
+            <div class="bio-wrapper">               
+                <div id="text-container">
+                    <p data-text="I am a skilled and accomplished scientist with a BSc in chemistry, MSc and PhD in neuroscience from Ben-Gurion University. With a background in animal models of epilepsy, I have developed novel therapeutic approaches for epilepsy and blood-brain barrier injury. I have studied the function of the blood-brain barrier in both health and disease and identified a mechanism for its modulation by neuronal activity, and its link to synaptic plasticity. Currently working in preclinical R&D for the company Modulight.bio, I am developing a novel optogenetic-based therapeutic approach for a variety of neurological disorders. Outside of work, I enjoy football, coding, and making things." data-interval="35"></p>                  
+                  <div id="cursor"></div>
+                </div>
             </div>
         </div>
         <div id="projects" class="hidden">
-            <div class="article-wrapper">   
-                    <article data-index="0" data-status="active">   
-                        <div class="card">
+            <div class="projects-wrapper">
+                <div class="projects-inner">
+                    <article class="card">   
                             <div class="card-content">
                                 <div class="card-image">
                                     <i class="fa-regular fa-futbol"></i>
@@ -43,11 +47,10 @@
                                         <h4>Israeli Premier League match result prediction</h4>
                                         </div>    
                                     </div>
+                                </div>
                             </div>
-                        </div>
                     </article>
-                    <article data-index="1" data-status="inactive">
-                        <div class="card" >
+                    <article class="card">        
                             <div class="card-content">
                                 <div class="card-image">
                                 <i class="fa-solid fa-font"></i>
@@ -62,10 +65,8 @@
                                     </div>  
                                 </div>
                             </div>
-                        </div>
                     </article>
-                    <article data-index="2" data-status="inactive">
-                        <div class="card" >
+                    <article class="card">
                             <div class="card-content">
                                 <div class="card-image">
                                     <i class="fa-solid fa-database"></i>
@@ -80,15 +81,30 @@
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                    </article>
-                
+                    </article>               
+                    <article class="card">
+                            <div class="card-content">
+                                <div class="card-image">
+                                    <i class="fa-regular fa-file-image"></i>
+                                </div>
+                                <div class="card-info-wrapper">
+                                    <div class="card-info">
+                                        <i class="fa-regular fa-images"></i>
+                                        <div class="card-info-title">
+                                        <a src="https://github.com/swissclock/VSI-to-PNG"></a><h3>VSI2PNG</h3>  
+                                        <h4>ImageJ Macro script to automatically convert VSI files (Olympus file format) to PNG images</h4>
+                                        </div> </a>   
+                                    </div>
+                                </div>
+                            </div>
+                    </article> 
+                </div>                            
             </div>
-            <div class="article-nav">
-                <button class="article-nav-button" type="button" onclick="handleLeftClick()">
+            <div class="nav-btns">
+                <button class="projects-nav-button" type="button" id="prev-proj">
                 <i class="fa-solid fa-arrow-left"></i>
                 </button>
-                <button class="article-nav-button" type="button" onclick="handleRightClick()">
+                <button class="projects-nav-button" type="button" id="next-proj">
                 <i class="fa-solid fa-arrow-right"></i>
                 </button>
             </div>
@@ -98,7 +114,7 @@
                 <div class="carousel">
                     <div class="carousel-inner">
                       <article class="carousel-card card-info-title">
-                        <a href="https://pubmed.ncbi.nlm.nih.gov/35478597/" class="caro-link">
+                        <a href="https://pubmed.ncbi.nlm.nih.gov/35478597/" class="caro-link" target="_blank">
                         <h3 id="article-title">
                             Craniotomy for acute monitoring of pial vessels in the rodent brain
                         </h3></a>
@@ -110,7 +126,7 @@
                         </p>
                       </article>
                       <article class="carousel-card card-info-title">
-                        <a href="https://pubmed.ncbi.nlm.nih.gov/33724543/" class="caro-link">
+                        <a href="https://pubmed.ncbi.nlm.nih.gov/33724543/" class="caro-link" target="_blank">
                         <h3 id="article-title">
                             PVP-coated Gd-grafted nanodiamonds as a novel and potentially safer contrast agent for in vivo MRI
                         </h3></a>
@@ -122,7 +138,7 @@
                         </p>
                       </article>
                       <article class="carousel-card card-info-title">
-                        <a href="https://pubmed.ncbi.nlm.nih.gov/32084435" class="caro-link">
+                        <a href="https://pubmed.ncbi.nlm.nih.gov/32084435" class="caro-link" target="_blank">
                         <h3 id="article-title">
                             Midazolam and isoflurane combination reduces late brain damage in the paraoxon-induced status epilepticus rat model
                         </h3></a>                        
@@ -134,7 +150,7 @@
                         </p>
                       </article>
                       <article class="carousel-card card-info-title">
-                        <a href="https://pubmed.ncbi.nlm.nih.gov/33027965/" class="caro-link">
+                        <a href="https://pubmed.ncbi.nlm.nih.gov/33027965/" class="caro-link" target="_blank">
                         <h3 id="article-title">
                             TMS-Induced Controlled BBB Opening: Preclinical Characterization and Implications for Treatment of Brain Cancer
                         </h3></a>                        
@@ -146,7 +162,7 @@
                         </p>
                       </article>
                       <article class="carousel-card card-info-title">
-                        <a href="https://pubmed.ncbi.nlm.nih.gov/31711869/" class="caro-link">
+                        <a href="https://pubmed.ncbi.nlm.nih.gov/31711869/" class="caro-link" target="_blank">
                         <h3 id="article-title">
                             Blood-brain barrier dysfunction in status epileptics: Mechanisms and role in epileptogenesis
                         </h3></a>                        
@@ -158,7 +174,7 @@
                         </p>
                       </article>
                       <article class="carousel-card card-info-title">
-                        <a href="https://pubmed.ncbi.nlm.nih.gov/31801888/" class="caro-link">
+                        <a href="https://pubmed.ncbi.nlm.nih.gov/31801888/" class="caro-link" target="_blank">
                         <h3 id="article-title">
                             Paroxysmal slow cortical activity in Alzheimer's disease and epilepsy is associated with blood-brain barrier dysfunction
                         </h3></a>                        
@@ -169,7 +185,7 @@
                             A growing body of evidence shows that epileptic activity is frequent but often undiagnosed in patients with Alzheimer's disease (AD) and has major therapeutic implications. Here, we analyzed electroencephalogram (EEG) data from patients with AD and found an EEG signature of transient slowing of the cortical network that we termed paroxysmal slow wave events (PSWEs). The occurrence per minute of the PSWEs was correlated with level of cognitive impairment. Interictal (between seizures) PSWEs were also found in patients with epilepsy, localized to cortical regions displaying blood-brain barrier (BBB) dysfunction, and in three rodent models with BBB pathology: aged mice, young 5x familial AD model, and status epilepticus-induced epilepsy in young rats. To investigate the potential causative role of BBB dysfunction in network modifications underlying PSWEs, we infused the serum protein albumin directly into the cerebral ventricles of naïve young rats. Infusion of albumin, but not artificial cerebrospinal fluid control, resulted in high incidence of PSWEs. Our results identify PSWEs as an EEG manifestation of nonconvulsive seizures in patients with AD and suggest BBB pathology as an underlying mechanism and as a promising therapeutic target. 
                         </p>
                       </article>
-                      <article class="carousel-card card-info-title">
+                      <article class="carousel-card card-info-title" target="_blank">
                         <a href="https://pubmed.ncbi.nlm.nih.gov/28444141/" class="caro-link">
                         <h3 id="article-title">         
                             Imaging blood-brain barrier dysfunction as a biomarker for epileptogenesis
@@ -181,7 +197,7 @@
                             A biomarker that will enable the identification of patients at high-risk for developing post-injury epilepsy is critically required. Microvascular pathology and related blood-brain barrier dysfunction and neuroinflammation were shown to be associated with epileptogenesis after injury. Here we used prospective, longitudinal magnetic resonance imaging to quantitatively follow blood-brain barrier pathology in rats following status epilepticus, late electrocorticography to identify epileptic animals and post-mortem immunohistochemistry to confirm blood-brain barrier dysfunction and neuroinflammation. Finally, to test the pharmacodynamic relevance of the proposed biomarker, two anti-epileptogenic interventions were used; isoflurane anaesthesia and losartan. Our results show that early blood-brain barrier pathology in the piriform network is a sensitive and specific predictor (area under the curve of 0.96, P < 0.0001) for epilepsy, while diffused pathology is associated with a lower risk. Early treatments with either isoflurane anaesthesia or losartan prevented early microvascular damage and late epilepsy. We suggest quantitative assessment of blood-brain barrier pathology as a clinically relevant predictive, diagnostic and pharmacodynamics biomarker for acquired epilepsy.
                         </p>
                       </article>
-                      <article class="carousel-card card-info-title">
+                      <article class="carousel-card card-info-title" target="_blank">
                         <a href="https://pubmed.ncbi.nlm.nih.gov/25377630/" class="caro-link">
                         <h3 id="article-title">         
                             sec-Butyl-propylacetamide (SPD) and two of its stereoisomers rapidly terminate paraoxon-induced status epilepticus in rats                        </h3></a>                        
@@ -197,7 +213,7 @@
                       </article>
                    </div>
                 </div>
-                <div class="caro-nav">
+                <div class="nav-btns">
                     <button id="prev-button" type="button" ><i class="fa-solid fa-arrow-left"></i></button>
                     <button id="next-button" type="button" ><i class="fa-solid fa-arrow-right"></i></button>                    
                 </div>
@@ -205,16 +221,29 @@
         </div>
     </main>
     <footer>    
-        <a class="footer-link" href="https://github.com/evyatarsw">
+        <a class="footer-link" href="https://www.linkedin.com/in/evyatar-swissa-458283240" target="_blank">
             <i class="fa-brands fa-linkedin-in"></i>
         </a>
-        <a class="footer-link" href="https://www.linkedin.com/in/evyatar-swissa-458283240"> 
+        <a class="footer-link" href="https://github.com/evyatarsw" target="_blank"> 
             <i class="fa-brands fa-square-github"></i>
         </a>
     </footer>
 </body>
 <script src="toggle.js"></script>
 <script src="cards.js"></script>
-<script src="carousel.js"></script>
 <script src="caro.js"></script>
+<script src="typing.js"></script>
+<script src="letters.js"></script>
+<script>
+    const submenuTrigger = document.querySelector(".submenu-trigger");
+    const submenu = document.querySelector(".sub-menu");
+
+    submenuTrigger.onmouseover = () => {
+    submenu.style.display = "flex";
+    }
+
+    submenuTrigger.onmouseout = () => {
+    submenu.style.display = "none";
+    }
+</script>
 </html>

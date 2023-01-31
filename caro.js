@@ -1,39 +1,72 @@
 // Get all articles
 let articles = document.querySelectorAll('article.carousel-card');
+let projects = document.querySelectorAll('article.card');
 
 // Get buttons
-const prevBtn = document.getElementById('prev-button');
-const nextBtn = document.getElementById('next-button');
+const prevArt = document.getElementById('prev-button');
+const nextArt = document.getElementById('next-button');
+const prevProj = document.getElementById('prev-proj');
+const nextProj = document.getElementById('next-proj');
+
 // Keep track of current article
-let currentIndex = 0;
+let artIndex = 0;
+let projIndex = 0;
 
 // Show the first article
-articles[currentIndex].style.display = 'block';
+articles[artIndex].style.display = 'block';
+projects[projIndex].style.display = 'block';
 
 // Event listener for next button
-nextBtn.addEventListener('click', function() {
+nextArt.addEventListener('click', function() {
   // Hide current article
-  articles[currentIndex].style.display = 'none';
+  articles[artIndex].style.display = 'none';
   // Increase current index
-  currentIndex++;
+  artIndex++;
   // If at last article, go back to first
-  if (currentIndex === articles.length) {
-    currentIndex = 0;
+  if (artIndex === articles.length) {
+    artIndex = 0;
   }
   // Show next article
-  articles[currentIndex].style.display = 'block';
+  articles[artIndex].style.display = 'block';
 });
 
 // Event listener for prev button
-prevBtn.addEventListener('click', function() {
+prevArt.addEventListener('click', function() {
   // Hide current article
-  articles[currentIndex].style.display = 'none';
+  articles[artIndex].style.display = 'none';
   // Decrease current index
-  currentIndex--;
+  artIndex--;
   // If at first article, go to last
-  if (currentIndex < 0) {
-    currentIndex = articles.length - 1;
+  if (artIndex < 0) {
+    artIndex = articles.length - 1;
   }
   // Show previous article
-  articles[currentIndex].style.display = 'block';
+  articles[artIndex].style.display = 'block';
+});
+
+nextProj.addEventListener('click', function() {
+  // Hide current article
+  projects[projIndex].style.display = 'none';
+  // Increase current index
+  projIndex++;
+  // If at last article, go back to first
+  if (projIndex === projects.length) {
+    projIndex = 0;
+  }
+  // Show next article
+  projects[projIndex].style.display = 'block';
+});
+
+// Event listener for prev button
+prevProj.addEventListener('click', function() {
+  // Hide current article
+  projects[projIndex].style.display = 'none';
+  // Decrease current index
+  projIndex--;
+  // If at first article, go to last
+  if (projIndex < 0) {
+    projIndex = projects.length - 1;
+  }
+  // Show previous article
+  projects[projIndex].style.display = 'block';
 });

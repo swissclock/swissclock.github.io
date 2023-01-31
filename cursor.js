@@ -1,6 +1,6 @@
-const INPUT_FIELD = getEl('input-field'),
-      INPUT_DISPLAY = getEl('input-display'),
-      CURSOR = getEl('cursor')
+const INPUT_FIELD = document.getElementById('bio-content'),
+      INPUT_DISPLAY = document.getElementById('input-display'),
+      CURSOR = document.getElementById('cursor')
 
 const STATE = {
   cursorIndex: 0
