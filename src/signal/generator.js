@@ -16,7 +16,11 @@
  */
 
 const RATE = 120        // simulated samples per second
-const SECONDS = 90      // ring buffer length, long enough for five distinct windows
+// Ring buffer length. The deepest any rule reads is its own window plus the
+// last rule's skew: about 16 s across a 4K-wide viewport, and a third of that
+// on a laptop. 25 s leaves headroom without pre-filling 90 s of signal at
+// startup that nothing will ever read back.
+const SECONDS = 25
 const TAU = Math.PI * 2
 
 /* Background rhythms. Frequencies are held as per-sample phase increments so
