@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en-GB">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
@@ -13,22 +13,44 @@
   <meta property="og:title" content="<!--@title-->">
   <meta property="og:description" content="<!--@description-->">
   <meta property="og:url" content="https://swissclock.github.io/">
-  <meta name="twitter:card" content="summary_large_image">
+  <meta property="og:site_name" content="Evyatar Swissa">
+  <meta property="og:locale" content="en_GB">
+  <!-- A text card, deliberately: there is no og:image, and a large-image card
+       with nothing to show renders worse than a small one. -->
+  <meta name="twitter:card" content="summary">
+
+  <!-- One address for the site, so the trailing-slash and /index.html forms
+       are not indexed as two pages. -->
+  <link rel="canonical" href="https://swissclock.github.io/">
 
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,200;0,6..72,300;0,6..72,400;1,6..72,300&family=Geist+Mono:wght@400;500&display=swap">
-  <link rel="preload" as="fetch" href="/data/brain-shell.bin" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,200..400;1,6..72,200..400&family=Geist+Mono:wght@400;500&display=swap">
+  <!-- The geometry is an ornament: warm the connection for all four binaries,
+       but at low priority so none of them races the stylesheet or the fonts. -->
+  <link rel="preload" as="fetch" href="/data/brain-shell.bin" crossorigin fetchpriority="low">
+  <link rel="preload" as="fetch" href="/data/trigeminal-nerve.bin" crossorigin fetchpriority="low">
+  <link rel="preload" as="fetch" href="/data/sensory-nucleus.bin" crossorigin fetchpriority="low">
+  <link rel="preload" as="fetch" href="/data/sensory-root.bin" crossorigin fetchpriority="low">
+
+  <noscript>
+    <style>
+      /* Nothing can expand the paper list without scripting, so show the whole
+         list and drop the control that would sit there doing nothing. */
+      #pubs li[hidden] { display: list-item !important; }
+      #more-papers { display: none; }
+    </style>
+  </noscript>
 </head>
 <body>
-  <a class="skip" href="#lede">Skip to content</a>
+  <a class="skip" href="#main">Skip to content</a>
 
   <canvas id="gl" aria-hidden="true"></canvas>
   <div class="veil" aria-hidden="true"></div>
 
   <header class="rail">
-    <div class="who">Evyatar Swissa<i>Neuroscientist</i></div>
+    <div class="who">Evyatar Swissa<span>Neuroscientist</span></div>
     <nav id="nav" aria-label="Sections"><!--@nav--></nav>
     <div class="meter" aria-hidden="true">
       <div class="k"><span>Signal</span><b id="m-state">resting</b></div>
@@ -37,20 +59,33 @@
     </div>
   </header>
 
-  <main id="main">
+  <!-- tabindex so the skip link actually moves focus here, not just the scroll. -->
+  <main id="main" tabindex="-1">
 <!--@sections-->
   </main>
 
   <footer><!--@footer--></footer>
 
-  <p class="hint" id="hint">Hold to deliver light</p>
-  <button class="stim" id="stim" aria-describedby="stim-help">
-    <span class="lamp" aria-hidden="true"></span>
-    <span class="txt"><b id="stim-label">620 nm · hold</b><i>eOPN3 · Gi/o</i></span>
-  </button>
-  <p id="stim-help" class="sr-only">
-    Press and hold to deliver light to the model. Suppression persists after release and recovers on its own.
-  </p>
+  <!-- The control is fixed to the viewport and so sits outside main, but it is
+       the one interaction on the page: a landmark of its own is what makes it
+       reachable to a reader who navigates by region. -->
+  <div role="region" aria-label="Light control">
+    <p class="hint" id="hint">Hold to deliver light</p>
+    <!-- No aria-pressed: this is momentary, not a toggle, and the state that
+         matters outlasts the press. The visible label changes with that state,
+         so the accessible name is held still by the text below it instead. -->
+    <button class="stim" id="stim" aria-describedby="stim-help">
+      <span class="lamp" aria-hidden="true"></span>
+      <span class="txt" aria-hidden="true"><b id="stim-label">620 nm · hold</b><i>eOPN3 · Gi/o</i></span>
+      <span class="sr-only">620 nm · hold to deliver light</span>
+    </button>
+    <p id="stim-help" class="sr-only">
+      Press and hold to deliver light to the model. Suppression persists after release and recovers on its own.
+    </p>
+    <!-- What the rail's meter shows a sighted reader, said out loud: the
+         recovery is the point, and it happens after the press is over. -->
+    <p id="stim-state" class="sr-only" role="status"></p>
+  </div>
 
   <script type="module" src="/src/main.js"></script>
 </body>

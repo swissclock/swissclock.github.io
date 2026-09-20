@@ -1,14 +1,24 @@
 /* Design tokens. Every colour, size and rhythm value in the site resolves here. */
 
 :root {
-  /* --- ground and ink ------------------------------------------------ */
+  /* --- ground and ink ------------------------------------------------
+     ink-3 is the working secondary: dates, labels, metadata, the note.
+     It carries real sentences, so it is held above 4.5:1 on both grounds,
+     and with enough margin to survive the model showing faintly through
+     the veil below 1080px.
+     ink-4 never sets running text. It is the ornament step — the lamp
+     ring, an underline, the decorative section ordinals — and is kept
+     at 3:1 so the control it draws is still perceivable.                */
   --bg: #080a0e;
   --bg-lift: #0d1116;
   --ink: #e9ecf1;
   --ink-2: #a8b0bd;
-  --ink-3: #6b7382;
-  --ink-4: #3b424e;
+  --ink-3: #7e8798;
+  --ink-4: #576273;
   --rule: rgba(168, 176, 189, 0.13);
+  /* The fiber cord in the model. It is part of the palette, not the scene's
+     own invention, so the scene reads it from here like everything else. */
+  --cord: #2c3644;
 
   /* --- state ---------------------------------------------------------
      cool  = resting, the baseline the whole site sits at
@@ -19,35 +29,64 @@
   --fade: #b8734f;
   --accent: var(--cool);
 
-  /* --- type ----------------------------------------------------------- */
+  /* --- type -----------------------------------------------------------
+     Seven sizes, and no two of them are close enough to be mistaken for
+     each other. Five serif steps carry everything that is read; the two
+     mono steps carry everything that is only identified — labels at 11
+     and data at 12. Mono is set smaller than serif on purpose: Geist
+     Mono has the taller x-height of the pair, so equal optical weight
+     needs unequal size.                                                 */
   --serif: 'Newsreader', ui-serif, Georgia, 'Times New Roman', serif;
   --mono: 'Geist Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 
-  --t-display: clamp(54px, 8.2vw, 122px);
-  --t-h2: clamp(30px, 3.5vw, 46px);
-  --t-lede: clamp(20px, 2.05vw, 25px);
-  --t-entry: 19px;
-  --t-body: 17.5px;
-  --t-small: 16.5px;
-  --t-label: 10.5px;
-  --t-meta: 11px;
-  --t-note: 12px;
+  --t-display: clamp(52px, 8vw, 122px);
+  --t-h2: clamp(30px, 3.4vw, 44px);
+  --t-lede: clamp(21px, 2.1vw, 27px);
+  --t-title: 22px;
+  --t-body: 18px;
+  --t-meta: 12px;
+  --t-label: 11px;
 
-  --lh-display: 0.9;
-  --lh-h2: 1.12;
-  --lh-body: 1.62;
+  --lh-display: 0.88;
+  --lh-h2: 1.14;
+  --lh-lede: 1.42;
+  --lh-title: 1.3;
+  --lh-body: 1.6;
+  --lh-mono: 1.7;
 
-  --track-display: -0.035em;
-  --track-h2: -0.025em;
+  /* Tracking tightens as size grows and opens as it shrinks, which is the
+     whole reason the 122px display and the 11px label can share a page. */
+  --track-display: -0.034em;
+  --track-h2: -0.022em;
+  --track-title: -0.012em;
   --track-label: 0.2em;
-  --track-meta: 0.12em;
+  --track-meta: 0.1em;
+  --track-data: 0.045em; /* tabular numerals need far less air than caps */
+  --track-note: 0.015em;
 
-  /* --- rhythm --------------------------------------------------------- */
-  --rail-w: 190px;
-  --col-w: 620px;
-  --gutter: clamp(16px, 3vw, 48px);
+  /* --- rhythm ---------------------------------------------------------
+     Section spacing is a measured clamp rather than a share of the
+     viewport, so a short laptop window and a tall monitor read alike.   */
+  --section-y: clamp(76px, 8.5vw, 132px);
+  --lead-in: clamp(30px, 3.2vw, 46px); /* heading block down to its list */
+  --stack: clamp(20px, 2vw, 28px);     /* one block down to the next     */
+  --row-y: clamp(20px, 1.8vw, 26px);   /* inside a timeline entry        */
+  --row-y-tight: clamp(13px, 1.1vw, 17px); /* inside a publication row   */
+
+  /* --- measure ---------------------------------------------------------
+     The rail and the gutter grow with the viewport so that on a wide
+     display the reading column moves inboard instead of clinging to the
+     left edge, while still clearing the model.                          */
+  --rail-w: clamp(190px, 12vw, 232px);
+  --gutter: clamp(16px, 3vw, 64px);
   --edge: clamp(16px, 4vw, 56px);
-  --section-y: 14vh;
+  /* The column ends where the veil stops protecting it: 48% of the viewport
+     on anything wide, and a 520px measure once that share would be too mean
+     to read. .veil derives its stops from exactly this sum. */
+  --col-w: clamp(520px, 48vw - var(--rail-w) - var(--gutter), 660px);
+  /* Wide enough for "2014 — 2020" set in 12px mono, at every width it takes. */
+  --when-w: clamp(6rem, 7.5vw, 7rem);
+  --when-gap: clamp(16px, 1.6vw, 26px);
 
   /* --- motion --------------------------------------------------------- */
   --ease: cubic-bezier(0.22, 0.61, 0.36, 1);
@@ -56,6 +95,15 @@
   --t-slow: 0.6s;
 
   color-scheme: dark;
+}
+
+/* Below the layout change the display sizes fall far enough that the
+   tracking set for 122px would close the letters up. Open it back out. */
+@media (max-width: 620px) {
+  :root {
+    --track-display: -0.024em;
+    --track-h2: -0.015em;
+  }
 }
 
 /* Light is being delivered right now. */

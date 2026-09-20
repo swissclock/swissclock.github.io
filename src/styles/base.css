@@ -13,23 +13,33 @@ body {
   margin: 0;
   background: var(--bg);
   color: var(--ink);
-  font: 300 18px/var(--lh-body) var(--serif);
+  font: 300 var(--t-body)/var(--lh-body) var(--serif);
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
+  /* Newsreader ships an optical-size axis; letting it follow the used size
+     is what keeps 122px and 18px from looking like the same drawing. */
+  font-optical-sizing: auto;
 }
 
-h1, h2, h3, p, ul, figure { margin: 0; }
+h1, h2, h3, p, ul { margin: 0; }
 ul { list-style: none; padding: 0; }
 a { color: inherit; text-decoration: none; }
 button { font: inherit; color: inherit; }
 canvas { display: block; }
 
+/* The browser's own [hidden] rule loses to any author `display`, and .pub sets
+   one, so without this the collapsed papers render anyway and the button's
+   first click reads as "collapse". */
+[hidden] { display: none !important; }
+
 ::selection { background: var(--warm); color: #0a0a0a; }
 
+/* One ring everywhere, in the current state colour, so a keyboard reader
+   sees the same accent the rest of the page is using at that moment. */
 :focus-visible {
-  outline: 1px solid var(--accent);
-  outline-offset: 4px;
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
 }
 
 .sr-only {
@@ -41,18 +51,25 @@ canvas { display: block; }
   white-space: nowrap;
 }
 
+/* Fixed, not absolute: it has to arrive on screen wherever the reader has
+   scrolled to, which is exactly when they need it. */
 .skip {
-  position: absolute;
-  top: 0; left: 0;
-  z-index: 20;
-  transform: translateY(-120%);
+  position: fixed;
+  /* Far enough down that its focus ring clears the wordmark behind it. */
+  top: 18px;
+  left: var(--edge);
+  z-index: 30;
+  /* Clears its own focus ring on the way out, and lands clear of the top
+     edge so the ring is not clipped by the viewport when it arrives. */
+  transform: translateY(-300%);
   background: var(--bg-lift);
   color: var(--ink);
   border: 1px solid var(--rule);
-  padding: 0.7em 1.2em;
-  font: 400 var(--t-meta)/1 var(--mono);
-  letter-spacing: var(--track-meta);
+  padding: 0.8em 1.4em;
+  font: 400 var(--t-label)/1 var(--mono);
+  letter-spacing: var(--track-label);
   text-transform: uppercase;
+  transition: transform var(--t-fast) var(--ease);
 }
 .skip:focus { transform: translateY(0); }
 
@@ -61,7 +78,7 @@ canvas { display: block; }
 h1 {
   font: 200 var(--t-display)/var(--lh-display) var(--serif);
   letter-spacing: var(--track-display);
-  margin-left: -0.055em;
+  margin-left: -0.055em; /* hangs the E on the column edge, not beside it */
 }
 h1 span { display: block; }
 h1 .b { color: var(--ink-2); }
@@ -69,33 +86,33 @@ h1 .b { color: var(--ink-2); }
 h2 {
   font: 200 var(--t-h2)/var(--lh-h2) var(--serif);
   letter-spacing: var(--track-h2);
-  margin-bottom: 0.7em;
+  margin-bottom: 0.62em;
   max-width: 17ch;
   text-wrap: balance;
 }
 h2 em { font-style: italic; color: var(--ink-2); }
 
 h3 {
-  font: 400 var(--t-entry)/1.35 var(--serif);
-  letter-spacing: -0.012em;
+  font: 400 var(--t-title)/var(--lh-title) var(--serif);
+  letter-spacing: var(--track-title);
 }
 
-p + p { margin-top: 1.15em; }
+p + p { margin-top: 1.1em; }
 
 .body {
   color: var(--ink-2);
-  max-width: 60ch;
-  font-size: var(--t-body);
+  max-width: 58ch;
 }
 .body em { font-style: italic; color: var(--ink); }
 .body b { font-weight: 400; color: var(--ink); }
 
+/* The one paragraph set in mono, because it describes the instrument. */
 .note {
-  font: 400 var(--t-note)/1.75 var(--mono);
+  font: 400 var(--t-meta)/1.8 var(--mono);
   color: var(--ink-3);
-  letter-spacing: 0.02em;
-  max-width: 52ch;
-  margin-top: 1.6em;
+  letter-spacing: var(--track-note);
+  max-width: 54ch;
+  margin-top: var(--stack);
 }
 
 /* Small uppercase mono label that opens a section. */
@@ -105,9 +122,12 @@ p + p { margin-top: 1.15em; }
   letter-spacing: var(--track-label);
   text-transform: uppercase;
   color: var(--ink-3);
-  margin-bottom: 2.2em;
+  margin-bottom: var(--stack);
 }
 .tag-flush { margin-bottom: 0; }
+/* The section ordinal inside a tag is a typographic mark, hidden from
+   assistive tech in the markup; here it only has to stop being italic. */
+.tag em { font-style: normal; }
 
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }

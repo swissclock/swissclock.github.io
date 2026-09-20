@@ -3,119 +3,165 @@
  * through the same Vite plugin) so the page has real text before any JavaScript
  * runs. Nothing in here may touch browser APIs: it executes in Node.
  *
- * Strings in data.js are trusted authored content and may contain <em>/<b>.
+ * Prose fields in data.js are trusted authored content and may carry <em>/<b>,
+ * so they are interpolated as written. Everything else — every attribute value,
+ * every label, every title — goes through esc().
  */
 
 import * as C from './data.js'
 
-const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
+/** Safe in text and inside a double- or single-quoted attribute. */
+const esc = (s) => String(s)
+  .replace(/&/g, '&amp;')
+  .replace(/</g, '&lt;')
+  .replace(/>/g, '&gt;')
+  .replace(/"/g, '&quot;')
+  .replace(/'/g, '&#39;')
+
+/** Authored prose reduced to plain escaped text, for accessible names. */
+const plain = (s) => esc(String(s).replace(/<[^>]+>/g, ''))
+
 const n2 = (i) => String(i + 1).padStart(2, '0')
+
+const NEW_TAB = ' target="_blank" rel="noopener"'
+const offsite = (href) => (/^https?:/i.test(href) ? NEW_TAB : '')
+
+/** A bare year becomes machine-readable; anything else ("now") stays prose. */
+const stamp = (v) => (/^\d{4}$/.test(v) ? `<time datetime="${esc(v)}">${esc(v)}</time>` : esc(v))
+const span = (e) => (e.to ? `${stamp(e.from)} — ${stamp(e.to)}` : stamp(e.from))
+
+/**
+ * The section eyebrow and the section heading, both numbered from one source.
+ * The ordinal is split out and hidden the same way the rail's is: it is a
+ * typographic mark, and "zero two em dash" before every heading is not.
+ */
+const eyebrow = (i) => `<span class="tag"><em aria-hidden="true">${n2(i)} — </em>${esc(C.sections[i].label)}</span>`
+const head = (i, html) => `<h2 id="${esc(C.sections[i].id)}-title">${html}</h2>`
 
 function nav () {
   return C.sections
-    .map((s, i) => `<a href="#${s.id}"${i === 0 ? ' class="on"' : ''}><em>${n2(i)}</em>${esc(s.label)}</a>`)
+    .map((s, i) => `<a href="#${esc(s.id)}"${i === 0 ? ' class="on" aria-current="true"' : ''}><em aria-hidden="true">${n2(i)}</em>${esc(s.label)}</a>`)
     .join('')
 }
 
 function lede () {
+  const parts = C.person.name.split(' ')
+  const family = parts.pop()
+  const given = parts.join(' ')
   const aff = C.person.affiliations
     .map((a) => `${esc(a.what)}, <b>${esc(a.where)}</b>`)
     .join(' · ')
   return `
     <div class="col">
       <span class="tag">${esc(C.person.places)}</span>
-      <h1><span>Evyatar</span><span class="b">Swissa</span></h1>
+      <h1 id="lede-title"><span>${esc(given)}</span><span class="b">${esc(family)}</span></h1>
       <p class="lede-p">${C.person.thesis}</p>
       <p class="sub">${aff}</p>
     </div>`
 }
 
-function now () {
+function now (i) {
   return `
     <div class="col">
-      <span class="tag">02 — Now</span>
-      <h2>${C.now.heading}</h2>
+      ${eyebrow(i)}
+      ${head(i, C.now.heading)}
       ${C.now.paragraphs.map((p) => `<p class="body">${p}</p>`).join('\n      ')}
       <p class="note">${C.now.note}</p>
     </div>`
 }
 
 function entry (e) {
-  const body = e.body ? `<p>${e.body}</p>` : ''
+  const body = e.body ? `\n            <p>${e.body}</p>` : ''
   return `
-        <div class="entry${e.live ? ' live' : ''}">
-          <div class="when">${esc(e.when)}</div>
+        <li class="entry${e.live ? ' live' : ''}">
+          <div class="when">${span(e)}</div>
           <div>
             <h3>${esc(e.title)}</h3>
-            <div class="where">${esc(e.where)}</div>
-            ${body}
+            <div class="where">${esc(e.where)}</div>${body}
           </div>
-        </div>`
+        </li>`
 }
 
-function research () {
+function research (i) {
   return `
     <div class="col">
-      <span class="tag">03 — Research</span>
-      <h2>${C.research.heading}</h2>
+      ${eyebrow(i)}
+      ${head(i, C.research.heading)}
       <p class="body">${C.research.intro}</p>
-      <div class="entries">${C.research.entries.map(entry).join('')}
-      </div>
+      <ul class="entries" role="list">${C.research.entries.map(entry).join('')}
+      </ul>
     </div>`
 }
 
-function path () {
+function path (i) {
   return `
     <div class="col">
-      <span class="tag">04 — Path</span>
-      <h2>${C.path.heading}</h2>
-      <div class="entries">${C.path.entries.map(entry).join('')}
-      </div>
+      ${eyebrow(i)}
+      ${head(i, C.path.heading)}
+      <ul class="entries" role="list">${C.path.entries.map(entry).join('')}
+      </ul>
     </div>`
 }
 
-function paper (p, i) {
-  const hidden = i >= C.papersVisible ? ' hidden' : ''
-  const note = p.note ? ` · ${esc(p.note)}` : ''
+/** Where the link lands, named for a reader who hears only the link. */
+const SOURCES = { 'doi.org': 'doi.org', 'pubmed.ncbi.nlm.nih.gov': 'PubMed' }
+const source = (href) => {
+  const host = new URL(href).hostname.replace(/^www\./, '')
+  return SOURCES[host] || host
+}
+
+function paper (p, hidden) {
+  // The visible row reads year / title / journal · authors; a screen reader gets
+  // the same facts as one sentence, because the link may be met out of context.
+  // The authors belong in it: author order is the first thing a peer scans for.
+  // "et al." already ends in a stop, so the sentence must not add a second.
+  const authors = plain(p.authors).replace(/\.?$/, '.')
+  const label = `${plain(p.title)}. ${plain(p.journal)}, ${p.year}. ${authors} Full record on ${esc(source(p.href))}.`
   return `
-        <a class="pub" href="${esc(p.href)}" target="_blank" rel="noopener"${hidden}>
-          <span class="yr">${p.year}</span>
-          <span>
-            <span class="t">${esc(p.title)}</span>
-            <span class="j">${esc(p.journal)} · ${p.authors}${note}</span>
-          </span>
-        </a>`
+        <li${hidden ? ' hidden data-rest' : ''}>
+          <a class="pub" href="${esc(p.href)}"${NEW_TAB} aria-label="${label}">
+            <time class="yr" datetime="${p.year}">${p.year}</time>
+            <span>
+              <span class="t">${esc(p.title)}</span>
+              <span class="j">${esc(p.journal)} · ${p.authors}</span>
+            </span>
+          </a>
+        </li>`
 }
 
 function projectLine (p) {
-  return `<li><span>${esc(p.kind)}</span><span><a href="${esc(p.href)}" target="_blank" rel="noopener">${esc(p.label)}</a>${p.after ? esc(p.after) : ''}</span></li>`
+  const written = (p.lang ? ` lang="${esc(p.lang)}"` : '') + (p.dir ? ` dir="${esc(p.dir)}"` : '')
+  const after = p.after ? esc(p.after) : ''
+  return `<li><span>${esc(p.kind)}</span><span><a href="${esc(p.href)}"${NEW_TAB}${written}>${esc(p.label)}</a>${after}</span></li>`
 }
 
-function papers () {
-  const rest = C.papers.length - C.papersVisible
+function papers (i) {
+  // The collapsed view is simply the newest papersVisible, so the button means
+  // "earlier papers" and the standing list has no gap in it to misread.
   return `
     <div class="col">
-      <span class="tag">05 — Papers</span>
-      <h2>Written down</h2>
-      <div class="pubs" id="pubs">${C.papers.map(paper).join('')}
-      </div>
-      <button class="more" id="more-papers" aria-expanded="false" aria-controls="pubs">Show ${rest} earlier papers</button>
+      ${eyebrow(i)}
+      ${head(i, 'Written down')}
+      <ul class="pubs" id="pubs" role="list">${C.papers.map((p, j) => paper(p, j >= C.papersVisible)).join('')}
+      </ul>
+      <button class="more" id="more-papers" aria-expanded="false" aria-controls="pubs">Show all papers</button>
       <div class="aside">
-        <span class="tag tag-flush">Also, for fun</span>
-        <ul>${C.projects.map(projectLine).join('')}</ul>
+        <h3 class="tag tag-flush">Also, for fun</h3>
+        <ul role="list">${C.projects.map(projectLine).join('')}</ul>
       </div>
     </div>`
 }
 
-function contact () {
+function contact (i) {
+  const links = C.contact.links
+    .map((l) => `<li><a href="${esc(l.href)}"${offsite(l.href)}>${esc(l.label)}</a></li>`)
+    .join('')
   return `
     <div class="col">
-      <span class="tag">06 — Contact</span>
-      <h2>${esc(C.contact.heading)}</h2>
+      ${eyebrow(i)}
+      ${head(i, esc(C.contact.heading))}
       <p class="body">${esc(C.contact.body)}</p>
-      <div class="links">${C.contact.links
-        .map((l) => `<a href="${esc(l.href)}"${l.href.startsWith('http') ? ' target="_blank" rel="noopener"' : ''}>${esc(l.label)}</a>`)
-        .join('')}</div>
+      <ul class="links" role="list">${links}</ul>
     </div>`
 }
 
@@ -125,17 +171,18 @@ const BODIES = { lede, now, research, path, papers, contact }
 function allSections () {
   return C.sections
     .map((s, i) => {
-      const body = BODIES[s.id]()
+      const body = BODIES[s.id](i)
       const rule = i < C.sections.length - 1
         ? `\n<canvas class="sig${i === 0 ? ' tall' : ''}" data-window="${i}" aria-hidden="true"></canvas>`
         : ''
-      return `<section id="${s.id}">${body}\n  </section>${rule}`
+      return `<section id="${esc(s.id)}" aria-labelledby="${esc(s.id)}-title">${body}\n  </section>${rule}`
     })
     .join('\n')
 }
 
 function footer () {
-  return `<span>${esc(C.person.name)}</span><span>${esc(C.credits.geometry)}</span><span>© ${C.credits.year}</span>`
+  const year = C.credits.year
+  return `<span>${esc(C.person.name)}</span><span>${esc(C.credits.geometry)}</span><span>© <time datetime="${esc(year)}">${esc(year)}</time></span>`
 }
 
 /** Replaces <!--@name--> markers in index.html. */
@@ -143,9 +190,8 @@ export const slots = {
   nav,
   sections: allSections,
   footer,
-  title: () => `${C.person.name} — ${C.person.role}`,
-  description: () =>
-    'Evyatar Swissa, neuroscientist. Director of In-vivo Research at Modulight Bio, working on optogenetic therapy, and formerly on the blood-brain barrier in epilepsy and plasticity.'
+  title: () => esc(`${C.person.name} — ${C.person.role}`),
+  description: () => esc(C.meta.description)
 }
 
 export function fillSlots (html) {

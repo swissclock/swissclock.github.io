@@ -5,17 +5,34 @@
   top: 0; right: 0;
   width: 52vw; height: 100%;
   z-index: 0;
+  /* The fiber and its tip exist before the point clouds arrive, so the canvas
+     stays dark until there is a model to light. A fetch that never lands keeps
+     it dark for good, which is the right answer: the page reads without it. */
+  opacity: 0;
+  transition: opacity var(--t-slow) var(--ease);
 }
+#gl.is-loaded { opacity: 1; }
+/* No context, or no geometry to draw into it. The canvas is then a full-height
+   transparent layer the compositor keeps for nothing, so take it out. */
+#gl.is-inert,
+#gl.is-failed { display: none; }
 
 /* Keeps the reading column on clean ground and fades the model into the edges.
-   The horizontal pass protects the text; the radial pass frames the model. */
+   The horizontal pass holds full ground all the way to the right edge of the
+   column, whatever width that column has resolved to, and only then lets go;
+   the radial pass frames the model. Legibility first, then the spectacle. */
 .veil {
   position: fixed;
   inset: 0;
   z-index: 1;
   pointer-events: none;
+  --safe: calc(var(--rail-w) + var(--gutter) + var(--col-w));
   background:
-    linear-gradient(90deg, var(--bg) 0%, rgba(8, 10, 14, 0.97) 46%, rgba(8, 10, 14, 0.55) 60%, transparent 70%),
+    linear-gradient(90deg,
+      var(--bg) 0,
+      rgba(8, 10, 14, 0.95) var(--safe),
+      rgba(8, 10, 14, 0.42) calc(var(--safe) + 6vw),
+      transparent calc(var(--safe) + 13vw)),
     radial-gradient(115% 95% at 76% 46%, transparent 46%, rgba(8, 10, 14, 0.4) 80%, rgba(8, 10, 14, 0.86) 100%);
 }
 
@@ -32,38 +49,43 @@
   padding: clamp(20px, 3.4vw, 38px) 0 clamp(20px, 3.4vw, 38px) clamp(20px, 3.4vw, 40px);
   padding-top: calc(clamp(20px, 3.4vw, 38px) + env(safe-area-inset-top, 0px));
   font: 400 var(--t-label)/1.7 var(--mono);
-  letter-spacing: 0.14em;
+  letter-spacing: var(--track-meta);
   text-transform: uppercase;
   color: var(--ink-3);
 }
-.rail .who { color: var(--ink); letter-spacing: 0.1em; }
-.rail .who i {
+/* The name is set a shade tighter than the rest of the rail so it reads as
+   one word-group rather than as another label. */
+.rail .who { color: var(--ink); letter-spacing: 0.08em; }
+.rail .who span {
   display: block;
-  font-style: normal;
   color: var(--ink-3);
-  letter-spacing: 0.14em;
-  margin-top: 0.5em;
+  letter-spacing: var(--track-meta);
+  margin-top: 0.6em;
 }
 .rail nav {
   display: flex;
   flex-direction: column;
-  gap: 0.55em;
+  gap: 0.6em;
   margin: auto 0;
 }
 .rail nav a {
   display: flex;
-  gap: 0.7em;
+  gap: 0.75em;
   align-items: baseline;
-  color: var(--ink-4);
+  color: var(--ink-3);
   transition: color var(--t-fast) var(--ease);
 }
+/* The ordinals are hidden from assistive tech and carry no information, so
+   they are allowed to sit at the ornament step. */
 .rail nav a em {
   font-style: normal;
   font-variant-numeric: tabular-nums;
   color: var(--ink-4);
+  letter-spacing: var(--track-data);
   transition: color var(--t-fast) var(--ease);
 }
-.rail nav a:hover { color: var(--ink-2); }
+.rail nav a:hover,
+.rail nav a:focus-visible { color: var(--ink-2); }
 .rail nav a.on { color: var(--ink); }
 .rail nav a.on em { color: var(--accent); }
 
@@ -74,6 +96,16 @@ main {
   z-index: 3;
   margin-left: var(--rail-w);
   padding-right: var(--edge);
+}
+
+/* Beside the reading column, the column's own layer covers the model from edge
+   to edge, and a press aimed at the brain lands on an empty section instead.
+   Let it through everywhere the text is not; the rail, the footer and the
+   control are separate elements and keep their own events. Below 1080px the
+   model is behind the copy, so there is nothing to aim at and this stays off. */
+@media (min-width: 1081px) {
+  main { pointer-events: none; }
+  main .col { pointer-events: auto; }
 }
 
 .col {
@@ -96,22 +128,23 @@ section {
 }
 
 .lede-p {
-  font: 300 var(--t-lede)/1.5 var(--serif);
+  font: 300 var(--t-lede)/var(--lh-lede) var(--serif);
   color: var(--ink-2);
-  letter-spacing: -0.006em;
-  margin-top: 1.6em;
+  letter-spacing: var(--track-title);
+  margin-top: 1.4em;
   max-width: 23ch;
   text-wrap: balance;
 }
 .lede-p em { font-style: italic; color: var(--ink); }
 
 .sub {
-  font: 400 var(--t-meta)/1.9 var(--mono);
-  letter-spacing: 0.14em;
+  font: 400 var(--t-meta)/var(--lh-mono) var(--mono);
+  letter-spacing: var(--track-meta);
   text-transform: uppercase;
   color: var(--ink-3);
-  margin-top: 2.6em;
-  max-width: 36ch;
+  margin-top: var(--stack);
+  max-width: 44ch;
+  text-wrap: balance;
 }
 .sub b { color: var(--ink-2); font-weight: 400; }
 
@@ -121,20 +154,26 @@ footer {
   margin-left: var(--rail-w);
   display: flex;
   justify-content: space-between;
-  gap: 1.5em;
+  gap: 0.8em 2.5em;
   flex-wrap: wrap;
-  padding: 3.5em var(--edge) 3.5em var(--gutter);
-  padding-bottom: calc(3.5em + env(safe-area-inset-bottom, 0px));
+  padding: var(--lead-in) var(--edge) var(--lead-in) var(--gutter);
+  padding-bottom: calc(var(--lead-in) + env(safe-area-inset-bottom, 0px));
   border-top: 1px solid var(--rule);
   font: 400 var(--t-label)/1.9 var(--mono);
-  letter-spacing: 0.1em;
+  letter-spacing: var(--track-meta);
   text-transform: uppercase;
-  color: var(--ink-4);
+  color: var(--ink-3);
 }
 
-/* --- narrow ------------------------------------------------------------ */
+/* --- the rail becomes a top bar --------------------------------------- */
 
 @media (max-width: 1080px) {
+  :root {
+    /* No side rail to clear, so the column takes the width it wants and the
+       available space caps it. */
+    --col-w: 640px;
+  }
+
   .rail {
     inset: 0 0 auto 0;
     bottom: auto;
@@ -142,40 +181,74 @@ footer {
     height: auto;
     flex-direction: row;
     align-items: center;
-    gap: 1.5em;
+    gap: 0.4em 1.5em;
+    flex-wrap: wrap;
     padding: 0.9em var(--edge);
     padding-top: calc(0.9em + env(safe-area-inset-top, 0px));
-    background: linear-gradient(var(--bg) 58%, transparent);
+    /* Solid for the whole bar. A gradient that ran out inside it left the nav
+       row sitting on whatever body copy happened to be scrolling underneath,
+       which read as a rendering fault rather than as a design. */
+    background: var(--bg);
+  }
+  /* The fade belongs below the bar, not inside it. */
+  .rail::after {
+    content: '';
+    position: absolute;
+    left: 0; right: 0; top: 100%;
+    height: 28px;
+    background: linear-gradient(var(--bg), transparent);
+    pointer-events: none;
   }
   .rail nav {
     flex-direction: row;
     flex-wrap: wrap;
     justify-content: flex-end;
-    gap: 1.2em;
+    gap: 0.5em 1.2em;
     margin: 0 0 0 auto;
   }
   .rail nav a em { display: none; }
-  .rail .who i,
-  .meter { display: none; }
+  /* components.css is loaded after this file, so an unscoped `.meter` here
+     would lose the cascade to the one that lays the meter out. */
+  .rail .who span,
+  .rail .meter { display: none; }
 
   main, footer { margin-left: 0; }
-  .col { padding-left: var(--edge); }
+  .col,
   footer { padding-left: var(--edge); }
 
-  #gl { width: 100%; opacity: 0.5; }
+  #gl { width: 100%; }
+  #gl.is-loaded { opacity: 0.34; }
   .veil {
-    background: radial-gradient(130% 80% at 62% 30%, transparent 18%, rgba(8, 10, 14, 0.88) 62%, var(--bg) 100%);
+    /* Here the model is behind the running copy, not beside it, so there is no
+       clear window to give it: the veil keeps a floor under the whole column
+       and only thins towards the bottom right, away from the lede and the
+       heading of every section. Legibility beats spectacle. */
+    background: radial-gradient(120% 74% at 78% 76%,
+      rgba(8, 10, 14, 0.52) 0%,
+      rgba(8, 10, 14, 0.88) 46%,
+      var(--bg) 88%);
   }
 
   #lede { padding-top: 22vh; justify-content: flex-start; }
-  h1 { margin-left: -0.04em; }
+  /* The optical indent on the display would eat into the 16px gutter once
+     the column runs to the edge of the screen. */
+  h1 { margin-left: 0; }
   .lede-p { max-width: 30ch; }
   h2 { max-width: none; }
 }
 
-@media (max-width: 620px) {
-  :root { --section-y: 10vh; }
-  .entry, .pub { grid-template-columns: 1fr; gap: 0.5em; }
-  .entry .when, .pub .yr { padding-top: 0; }
-  .hint { display: none; }
+/* --- narrow ------------------------------------------------------------ */
+
+/* Below this the identity and the six section links cannot share one line
+   without crowding, so the bar takes a deliberate second row rather than an
+   accidental one. */
+@media (max-width: 760px) {
+  .rail { padding-bottom: 0.8em; }
+  .rail nav {
+    width: 100%;
+    margin: 0.2em 0 0;
+    justify-content: flex-start;
+    gap: 0.4em 1.05em;
+    letter-spacing: 0.08em;
+  }
 }
