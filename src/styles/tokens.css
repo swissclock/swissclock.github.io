@@ -47,7 +47,8 @@
   --t-meta: 12px;
   --t-label: 11px;
 
-  --lh-display: 0.88;
+  --lh-display: 1.0;   /* Newsreader 200 has long descenders: below 1 the
+                          y of Evyatar collides with the i of Swissa */
   --lh-h2: 1.14;
   --lh-lede: 1.42;
   --lh-title: 1.3;
@@ -56,7 +57,7 @@
 
   /* Tracking tightens as size grows and opens as it shrinks, which is the
      whole reason the 122px display and the 11px label can share a page. */
-  --track-display: -0.034em;
+  --track-display: -0.014em;
   --track-h2: -0.022em;
   --track-title: -0.012em;
   --track-label: 0.2em;
@@ -101,7 +102,7 @@
    tracking set for 122px would close the letters up. Open it back out. */
 @media (max-width: 620px) {
   :root {
-    --track-display: -0.024em;
+    --track-display: -0.006em;
     --track-h2: -0.015em;
   }
 }

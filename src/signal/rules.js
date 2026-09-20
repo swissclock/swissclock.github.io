@@ -1,20 +1,25 @@
 /**
  * Draws the hairlines between sections as live traces of the shared signal.
  *
- * Each rule reads the same ring buffer at a different offset, so the page shows
- * one recording at several moments rather than several unrelated animations.
- * The offsets are worked out from the measured width: a window is however many
- * samples fit across the canvas, and each rule starts where the window above it
- * ended, so no two rules ever show the same stretch of signal.
+ * Each rule reads the same ring buffer, skewed by a fraction of a second, so
+ * they read as neighbouring channels of one montage rather than as unrelated
+ * animations.
+ *
+ * The skew is deliberately small. An earlier version spaced the rules a whole
+ * window apart, which put most of them tens of seconds into the past: holding
+ * the light changed the newest samples and nothing on screen moved, so the one
+ * interaction on the page looked broken. Every rule now sits within half a
+ * second of the write head and they quiet together, which is also what a real
+ * montage does.
  *
  * Nothing here reads layout inside the frame. Widths are measured in `resize`
  * and cached; `draw` only touches numbers and the 2D context.
  */
 
 const STEP = 2.2        // target horizontal pixels between samples
-const BASE_STRIDE = 2   // samples advanced per horizontal step, at full speed
-const TAIL_GUARD = 24   // samples nearest the write head, left alone
-const MIN_GAP = 96      // samples, the least separation worth calling distinct
+const BASE_STRIDE = 1   // samples advanced per horizontal step, at full speed
+const TAIL_GUARD = 12   // samples nearest the write head, left alone
+const SKEW = 45         // samples between one rule and the next, about 0.4 s
 
 export class Rules {
   constructor (canvases) {
@@ -101,29 +106,18 @@ export class Rules {
    * wide one; both were visible as rules that looked like copies of each other.
    */
   plan (capacity) {
-    const usable = Math.max(64, capacity - TAIL_GUARD)
     const n = this.items.length
-    let widest = 2
-    for (const item of this.items) {
-      widest = Math.max(widest, Math.floor(item.width / STEP) || 2)
-    }
-
-    // Slow the trace down rather than let the windows collide.
-    let stride = BASE_STRIDE
-    while (stride > 1 && n * widest * stride > usable) stride--
-
-    const most = Math.max(2, Math.floor(usable / stride))
-    const span = Math.min(widest, most) * stride
-    // One window apart if the buffer allows it, otherwise as far apart as it can.
-    const gap = n * span <= usable
-      ? span
-      : Math.max(MIN_GAP, Math.floor((usable - span) / Math.max(1, n - 1)))
+    // The deepest read is the widest window plus the last rule's skew; keep it
+    // inside the buffer whatever the viewport does.
+    const room = Math.max(64, capacity - TAIL_GUARD - (n - 1) * SKEW)
+    const stride = BASE_STRIDE
+    const most = Math.max(2, Math.floor(room / stride))
 
     for (const item of this.items) {
       item.stride = stride
       item.count = Math.max(2, Math.min(Math.floor(item.width / STEP) || 2, most))
       item.step = item.width / item.count
-      item.offset = TAIL_GUARD + item.rank * gap
+      item.offset = TAIL_GUARD + item.rank * SKEW
     }
 
     this.pending = false

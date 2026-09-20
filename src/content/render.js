@@ -38,6 +38,10 @@ const span = (e) => (e.to ? `${stamp(e.from)} — ${stamp(e.to)}` : stamp(e.from
 const eyebrow = (i) => `<span class="tag"><em aria-hidden="true">${n2(i)} — </em>${esc(C.sections[i].label)}</span>`
 const head = (i, html) => `<h2 id="${esc(C.sections[i].id)}-title">${html}</h2>`
 
+function who () {
+  return `${esc(C.person.name)}<span>${esc(C.person.role)}</span><span>${esc(C.person.location)}</span>`
+}
+
 function nav () {
   return C.sections
     .map((s, i) => `<a href="#${esc(s.id)}"${i === 0 ? ' class="on" aria-current="true"' : ''}><em aria-hidden="true">${n2(i)}</em>${esc(s.label)}</a>`)
@@ -53,7 +57,6 @@ function lede () {
     .join(' · ')
   return `
     <div class="col">
-      <span class="tag">${esc(C.person.places)}</span>
       <h1 id="lede-title"><span>${esc(given)}</span><span class="b">${esc(family)}</span></h1>
       <p class="lede-p">${C.person.thesis}</p>
       <p class="sub">${aff}</p>
@@ -187,6 +190,7 @@ function footer () {
 
 /** Replaces <!--@name--> markers in index.html. */
 export const slots = {
+  who,
   nav,
   sections: allSections,
   footer,

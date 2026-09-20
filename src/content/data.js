@@ -12,7 +12,7 @@
 export const person = {
   name: 'Evyatar Swissa',
   role: 'Neuroscientist',
-  places: 'Beer-Sheva · Ramat Gan · Israel',
+  location: 'Israel',
   // The one-sentence thesis of the whole site.
   thesis: 'I spent a decade learning how the brain <em>breaks</em>. Now I build the light that <em>quiets</em> it.',
   affiliations: [
@@ -40,49 +40,45 @@ export const now = {
 }
 
 export const research = {
-  heading: 'One interface, studied from <em>both sides</em>',
-  intro: 'Every project I have worked on sits at the same junction: the barrier between blood and brain, and the neurons whose excitability depends on it.',
+  heading: 'Why it <em>breaks</em>, what fixes it, and how a fix <em>reaches a patient</em>',
+  intro: 'One interface asked about three ways: the barrier between blood and brain, and the neurons whose excitability depends on it.',
   entries: [
     {
       from: '2014',
-      to: '2020',
-      title: 'Barrier failure as a predictor of epilepsy',
+      to: '2018',
+      title: 'Why it breaks',
       where: 'Friedman lab · Ben-Gurion University',
       // The prevention result is the pharmacodynamic arm of the Brain 2017
       // biomarker study (PMID 28444141): "Early treatments with either isoflurane
       // anaesthesia or losartan prevented early microvascular damage and late
-      // epilepsy." It is deliberately kept in the same sentence as the biomarker
-      // so it cannot be misread as a result of the paraoxon drug-screen paper
-      // (PMID 32084435), where isoflurane reduced damage and the anti-epileptic
-      // drugs changed nothing.
-      body: 'In organophosphate poisoning and status epilepticus, I followed what happens in the weeks after the seizures stop. Early blood-brain barrier pathology in the piriform network predicted which animals became epileptic months later, accurately enough to serve as a biomarker. In the same study, treating early with either isoflurane or losartan prevented the microvascular damage and the later epilepsy alike.'
+      // epilepsy." Kept general on purpose; the papers carry the detail.
+      body: 'Animal models of epilepsy and status epilepticus, following what happens in the weeks after the seizures stop. Blood-brain barrier pathology in the right place predicted which animals would become epileptic months later, accurately enough to serve as a biomarker. Treating early prevented the damage and the epilepsy alike.'
     },
     {
-      from: '2020',
-      to: '2024',
-      title: 'The healthy barrier responds to activity',
-      where: 'PhD and postdoctoral work',
-      body: 'Stimulating a limb for long enough opens the microvessels of the matching somatosensory cortex in an otherwise healthy brain, through caveolae-mediated transcytosis and TGF-β signalling. That opening tracks long-term synaptic plasticity. We saw it in rats with intravital imaging and electrophysiology, and again in people with barrier-mapping MRI.'
+      from: '2018',
+      to: '2022',
+      title: 'What it does when nothing is wrong',
+      where: 'PhD · Ben-Gurion University',
+      body: 'The same barrier, asked about in a brain that is not injured. Sustained sensory activity opens the microvessels of the cortex that receives it, and that opening travels with long-term synaptic plasticity. We saw it in rats, then in people.'
     },
     {
       from: '2022',
       to: 'now',
-      title: 'Light as a therapeutic',
+      title: 'Getting a fix to a patient',
       where: 'Modulight Bio · Weizmann Institute',
       live: true,
-      body: 'Viral delivery, implant design, chronic behavioural testing, and the evidence package that carries an optogenetic therapy towards the clinic. I also write the computer vision that scores it: tracking a freely moving animal with a patch cord on its head, through the open field and the elevated plus maze, and turning hours of video into numbers I trust.'
+      body: 'An optogenetic therapy taken from a construct towards the clinic: delivery, implant design, chronic behavioural testing, and the preclinical evidence a regulator will read.'
     }
   ]
 }
 
 export const path = {
-  heading: 'Chemistry, then brains, then <em>engineering</em>',
+  heading: 'The <em>short</em> version',
   entries: [
+    { from: '2012', to: '2016', title: 'BSc, Chemistry', where: 'Ben-Gurion University of the Negev' },
     { from: '2012', to: '2016', title: 'Research assistant', where: 'Experimental Neurosurgery · Ben-Gurion University' },
-    { from: '2016', title: 'BSc, Chemistry', where: 'Ben-Gurion University of the Negev' },
-    { from: '2017', title: 'MSc, Brain and Cognitive Sciences', where: 'Ben-Gurion University of the Negev' },
-    { from: '2019', to: '2022', title: 'Teaching assistant', where: 'Recanati School for Community Health Professions' },
-    { from: '2022', title: 'PhD, Brain and Cognitive Sciences', where: 'Blood-Brain Barrier lab · Prof. Alon Friedman' },
+    { from: '2016', to: '2018', title: 'MSc, Brain and Cognitive Sciences', where: 'Ben-Gurion University of the Negev' },
+    { from: '2018', to: '2022', title: 'PhD, Brain and Cognitive Sciences', where: 'Blood-Brain Barrier lab · Prof. Alon Friedman' },
     { from: '2022', to: 'now', title: 'Director of In-vivo Research', where: 'Modulight Bio', live: true },
     { from: '2022', to: 'now', title: 'Research Associate', where: 'Weizmann Institute', live: true }
   ]
