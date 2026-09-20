@@ -1,0 +1,291 @@
+/* Entries, publications, the aside, the signal rules, and the stim control. */
+
+/* --- timeline and research entries ------------------------------------ */
+
+.entries {
+  margin-top: 3.2em;
+  border-top: 1px solid var(--rule);
+}
+
+.entry {
+  display: grid;
+  grid-template-columns: 104px 1fr;
+  gap: 1.6em;
+  padding: 1.5em 0;
+  border-bottom: 1px solid var(--rule);
+}
+.entry .when {
+  font: 400 var(--t-meta)/1.7 var(--mono);
+  letter-spacing: 0.1em;
+  color: var(--ink-3);
+  font-variant-numeric: tabular-nums;
+  padding-top: 0.45em;
+}
+.entry .where {
+  font: 400 var(--t-meta)/1.7 var(--mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  margin-top: 0.35em;
+}
+.entry p {
+  font-size: var(--t-small);
+  color: var(--ink-2);
+  margin-top: 0.7em;
+  max-width: 52ch;
+}
+
+/* A quiet dot marks what is still running. It takes the state colour. */
+.entry.live h3::after {
+  content: '';
+  display: inline-block;
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: var(--accent);
+  margin-left: 0.7em;
+  vertical-align: 0.25em;
+  transition: background var(--t-med) var(--ease);
+}
+
+/* --- publications ------------------------------------------------------ */
+
+.pubs {
+  margin-top: 3em;
+  border-top: 1px solid var(--rule);
+}
+
+.pub {
+  display: grid;
+  grid-template-columns: 104px 1fr;
+  gap: 1.6em;
+  padding: 1.15em 0;
+  border-bottom: 1px solid var(--rule);
+  transition: background var(--t-fast) var(--ease);
+}
+.pub:hover { background: linear-gradient(90deg, rgba(127, 163, 201, 0.055), transparent 70%); }
+.pub .yr {
+  font: 400 var(--t-meta)/1.9 var(--mono);
+  color: var(--ink-3);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.08em;
+}
+.pub .t {
+  font: 300 var(--t-body)/1.4 var(--serif);
+  letter-spacing: -0.008em;
+  color: var(--ink-2);
+  transition: color var(--t-fast) var(--ease);
+}
+.pub:hover .t { color: var(--ink); }
+.pub .j {
+  display: block;
+  font: 400 var(--t-label)/1.8 var(--mono);
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  color: var(--ink-4);
+  margin-top: 0.5em;
+}
+.pub .j b { color: var(--ink-3); font-weight: 400; }
+
+.more {
+  margin-top: 1.6em;
+  padding: 0.6em 0;
+  background: none;
+  border: 0;
+  border-bottom: 1px solid var(--rule);
+  font: 400 var(--t-meta)/1 var(--mono);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  cursor: pointer;
+  transition: color var(--t-fast) var(--ease);
+}
+.more:hover { color: var(--ink); }
+
+/* --- side projects, deliberately quiet --------------------------------- */
+
+.aside {
+  margin-top: 3em;
+  padding-top: 1.6em;
+  border-top: 1px solid var(--rule);
+}
+.aside ul {
+  margin-top: 1.2em;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85em;
+}
+.aside li {
+  display: grid;
+  grid-template-columns: 4.5em 1fr;
+  gap: 0.9em;
+  align-items: baseline;
+  font-size: var(--t-small);
+  color: var(--ink-3);
+}
+.aside li > span:first-child {
+  font: 400 var(--t-label)/1.8 var(--mono);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-4);
+}
+.aside li a {
+  color: var(--ink-2);
+  border-bottom: 1px solid var(--ink-4);
+  transition: color var(--t-fast) var(--ease), border-color var(--t-fast) var(--ease);
+}
+.aside li a:hover { color: var(--ink); border-color: var(--accent); }
+
+/* --- contact ----------------------------------------------------------- */
+
+.links {
+  margin-top: 2em;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.9em 2.4em;
+  font: 400 var(--t-note)/1 var(--mono);
+  letter-spacing: var(--track-meta);
+  text-transform: uppercase;
+}
+.links a {
+  color: var(--ink-2);
+  padding-bottom: 0.5em;
+  border-bottom: 1px solid var(--rule);
+  transition: color var(--t-fast) var(--ease), border-color var(--t-fast) var(--ease);
+}
+.links a:hover { color: var(--ink); border-color: var(--accent); }
+
+/* --- the signal rules between sections ---------------------------------
+   These are not decoration. They are the same signal that drives the model. */
+
+.sig {
+  width: 100%;
+  height: 26px;
+  position: relative;
+  z-index: 3;
+}
+.sig.tall { height: 64px; }
+
+/* --- instrument readout in the rail ------------------------------------ */
+
+.meter {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45em;
+}
+.meter .k {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.6em;
+  padding-right: clamp(20px, 3.4vw, 38px);
+}
+.meter .k b {
+  font-weight: 400;
+  color: var(--ink-2);
+  font-variant-numeric: tabular-nums;
+}
+.meter .k b.hot { color: var(--warm); }
+.meter .track {
+  position: relative;
+  height: 1px;
+  background: var(--rule);
+  margin-right: clamp(20px, 3.4vw, 38px);
+}
+.meter .track i {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 100%;
+  background: var(--accent);
+  transition: background var(--t-med) var(--ease);
+}
+
+/* --- the stim control --------------------------------------------------
+   Momentary, not a toggle: it delivers light only while held, and what it
+   changes decays on its own afterwards. */
+
+.stim {
+  position: fixed;
+  right: clamp(18px, 3vw, 40px);
+  bottom: calc(clamp(18px, 3vw, 36px) + env(safe-area-inset-bottom, 0px));
+  z-index: 6;
+  display: flex;
+  align-items: center;
+  gap: 0.9em;
+  padding: 0.75em 1em;
+  background: rgba(13, 17, 22, 0.72);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--rule);
+  border-radius: 2px;
+  cursor: pointer;
+  text-align: left;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: none;
+  font: 400 var(--t-label)/1.4 var(--mono);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  transition: border-color var(--t-med) var(--ease), color var(--t-med) var(--ease);
+}
+.stim:hover { color: var(--ink-2); border-color: rgba(168, 176, 189, 0.3); }
+
+.stim .lamp {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 26px; height: 26px;
+  border: 1px solid var(--ink-4);
+  border-radius: 50%;
+  transition: border-color var(--t-med) var(--ease), box-shadow var(--t-med) var(--ease);
+}
+.stim .lamp::after {
+  content: '';
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--ink-4);
+  transition: all var(--t-fast) var(--ease);
+}
+.stim .txt b {
+  display: block;
+  font-weight: 400;
+  color: var(--ink-2);
+  letter-spacing: 0.1em;
+}
+.stim .txt i {
+  font-style: normal;
+  font-size: 9.5px;
+  color: var(--ink-4);
+  letter-spacing: var(--track-meta);
+}
+
+html.is-lit .stim { border-color: rgba(255, 92, 51, 0.55); }
+html.is-lit .stim .lamp {
+  border-color: var(--warm);
+  box-shadow: 0 0 22px rgba(255, 92, 51, 0.45);
+}
+html.is-lit .stim .lamp::after {
+  background: var(--warm);
+  width: 13px; height: 13px;
+  box-shadow: 0 0 12px var(--warm);
+}
+html.is-lit .stim .txt b { color: var(--warm); }
+html.is-recovering .stim .lamp::after { background: var(--fade); opacity: 0.55; }
+
+.hint {
+  position: fixed;
+  right: clamp(18px, 3vw, 40px);
+  bottom: calc(clamp(18px, 3vw, 36px) + 62px + env(safe-area-inset-bottom, 0px));
+  z-index: 6;
+  max-width: 15em;
+  text-align: right;
+  font: 400 10px/1.6 var(--mono);
+  letter-spacing: var(--track-meta);
+  text-transform: uppercase;
+  color: var(--ink-4);
+  pointer-events: none;
+  transition: opacity var(--t-slow) var(--ease);
+}
+.hint.gone { opacity: 0; }
+
+@media (max-width: 620px) {
+  .stim { left: var(--edge); right: var(--edge); justify-content: center; }
+}

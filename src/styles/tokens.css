@@ -1,0 +1,69 @@
+/* Design tokens. Every colour, size and rhythm value in the site resolves here. */
+
+:root {
+  /* --- ground and ink ------------------------------------------------ */
+  --bg: #080a0e;
+  --bg-lift: #0d1116;
+  --ink: #e9ecf1;
+  --ink-2: #a8b0bd;
+  --ink-3: #6b7382;
+  --ink-4: #3b424e;
+  --rule: rgba(168, 176, 189, 0.13);
+
+  /* --- state ---------------------------------------------------------
+     cool  = resting, the baseline the whole site sits at
+     warm  = 620 nm delivered light
+     fade  = the in-between while suppression recovers on its own       */
+  --cool: #7fa3c9;
+  --warm: #ff5c33;
+  --fade: #b8734f;
+  --accent: var(--cool);
+
+  /* --- type ----------------------------------------------------------- */
+  --serif: 'Newsreader', ui-serif, Georgia, 'Times New Roman', serif;
+  --mono: 'Geist Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+  --t-display: clamp(54px, 8.2vw, 122px);
+  --t-h2: clamp(30px, 3.5vw, 46px);
+  --t-lede: clamp(20px, 2.05vw, 25px);
+  --t-entry: 19px;
+  --t-body: 17.5px;
+  --t-small: 16.5px;
+  --t-label: 10.5px;
+  --t-meta: 11px;
+  --t-note: 12px;
+
+  --lh-display: 0.9;
+  --lh-h2: 1.12;
+  --lh-body: 1.62;
+
+  --track-display: -0.035em;
+  --track-h2: -0.025em;
+  --track-label: 0.2em;
+  --track-meta: 0.12em;
+
+  /* --- rhythm --------------------------------------------------------- */
+  --rail-w: 190px;
+  --col-w: 620px;
+  --gutter: clamp(16px, 3vw, 48px);
+  --edge: clamp(16px, 4vw, 56px);
+  --section-y: 14vh;
+
+  /* --- motion --------------------------------------------------------- */
+  --ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --t-fast: 0.2s;
+  --t-med: 0.3s;
+  --t-slow: 0.6s;
+
+  color-scheme: dark;
+}
+
+/* Light is being delivered right now. */
+html.is-lit {
+  --accent: var(--warm);
+}
+
+/* Light is off but the model has not recovered yet. */
+html.is-recovering {
+  --accent: var(--fade);
+}

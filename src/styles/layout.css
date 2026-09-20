@@ -1,0 +1,181 @@
+/* Canvas ground, the fixed instrument rail, the reading column, responsive. */
+
+#gl {
+  position: fixed;
+  top: 0; right: 0;
+  width: 52vw; height: 100%;
+  z-index: 0;
+}
+
+/* Keeps the reading column on clean ground and fades the model into the edges.
+   The horizontal pass protects the text; the radial pass frames the model. */
+.veil {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background:
+    linear-gradient(90deg, var(--bg) 0%, rgba(8, 10, 14, 0.97) 46%, rgba(8, 10, 14, 0.55) 60%, transparent 70%),
+    radial-gradient(115% 95% at 76% 46%, transparent 46%, rgba(8, 10, 14, 0.4) 80%, rgba(8, 10, 14, 0.86) 100%);
+}
+
+/* --- rail -------------------------------------------------------------- */
+
+.rail {
+  position: fixed;
+  left: 0; top: 0; bottom: 0;
+  width: var(--rail-w);
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: clamp(20px, 3.4vw, 38px) 0 clamp(20px, 3.4vw, 38px) clamp(20px, 3.4vw, 40px);
+  padding-top: calc(clamp(20px, 3.4vw, 38px) + env(safe-area-inset-top, 0px));
+  font: 400 var(--t-label)/1.7 var(--mono);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+.rail .who { color: var(--ink); letter-spacing: 0.1em; }
+.rail .who i {
+  display: block;
+  font-style: normal;
+  color: var(--ink-3);
+  letter-spacing: 0.14em;
+  margin-top: 0.5em;
+}
+.rail nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55em;
+  margin: auto 0;
+}
+.rail nav a {
+  display: flex;
+  gap: 0.7em;
+  align-items: baseline;
+  color: var(--ink-4);
+  transition: color var(--t-fast) var(--ease);
+}
+.rail nav a em {
+  font-style: normal;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-4);
+  transition: color var(--t-fast) var(--ease);
+}
+.rail nav a:hover { color: var(--ink-2); }
+.rail nav a.on { color: var(--ink); }
+.rail nav a.on em { color: var(--accent); }
+
+/* --- column ------------------------------------------------------------ */
+
+main {
+  position: relative;
+  z-index: 3;
+  margin-left: var(--rail-w);
+  padding-right: var(--edge);
+}
+
+.col {
+  max-width: var(--col-w);
+  padding-left: var(--gutter);
+}
+
+section {
+  position: relative;
+  padding: var(--section-y) 0;
+}
+
+#lede {
+  padding-top: 0;
+  min-height: 100vh;
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.lede-p {
+  font: 300 var(--t-lede)/1.5 var(--serif);
+  color: var(--ink-2);
+  letter-spacing: -0.006em;
+  margin-top: 1.6em;
+  max-width: 23ch;
+  text-wrap: balance;
+}
+.lede-p em { font-style: italic; color: var(--ink); }
+
+.sub {
+  font: 400 var(--t-meta)/1.9 var(--mono);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  margin-top: 2.6em;
+  max-width: 36ch;
+}
+.sub b { color: var(--ink-2); font-weight: 400; }
+
+footer {
+  position: relative;
+  z-index: 3;
+  margin-left: var(--rail-w);
+  display: flex;
+  justify-content: space-between;
+  gap: 1.5em;
+  flex-wrap: wrap;
+  padding: 3.5em var(--edge) 3.5em var(--gutter);
+  padding-bottom: calc(3.5em + env(safe-area-inset-bottom, 0px));
+  border-top: 1px solid var(--rule);
+  font: 400 var(--t-label)/1.9 var(--mono);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-4);
+}
+
+/* --- narrow ------------------------------------------------------------ */
+
+@media (max-width: 1080px) {
+  .rail {
+    inset: 0 0 auto 0;
+    bottom: auto;
+    width: 100%;
+    height: auto;
+    flex-direction: row;
+    align-items: center;
+    gap: 1.5em;
+    padding: 0.9em var(--edge);
+    padding-top: calc(0.9em + env(safe-area-inset-top, 0px));
+    background: linear-gradient(var(--bg) 58%, transparent);
+  }
+  .rail nav {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 1.2em;
+    margin: 0 0 0 auto;
+  }
+  .rail nav a em { display: none; }
+  .rail .who i,
+  .meter { display: none; }
+
+  main, footer { margin-left: 0; }
+  .col { padding-left: var(--edge); }
+  footer { padding-left: var(--edge); }
+
+  #gl { width: 100%; opacity: 0.5; }
+  .veil {
+    background: radial-gradient(130% 80% at 62% 30%, transparent 18%, rgba(8, 10, 14, 0.88) 62%, var(--bg) 100%);
+  }
+
+  #lede { padding-top: 22vh; justify-content: flex-start; }
+  h1 { margin-left: -0.04em; }
+  .lede-p { max-width: 30ch; }
+  h2 { max-width: none; }
+}
+
+@media (max-width: 620px) {
+  :root { --section-y: 10vh; }
+  .entry, .pub { grid-template-columns: 1fr; gap: 0.5em; }
+  .entry .when, .pub .yr { padding-top: 0; }
+  .hint { display: none; }
+}
