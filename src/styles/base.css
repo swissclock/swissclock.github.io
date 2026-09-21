@@ -104,6 +104,15 @@ p + p { margin-top: 1.1em; }
   max-width: 58ch;
 }
 .body em { font-style: italic; color: var(--ink); }
+/* A link inside running text. It sits on the baseline rule rather than taking
+   the accent outright, so prose does not turn into a row of buttons. */
+.body a {
+  color: var(--ink);
+  border-bottom: 1px solid var(--ink-4);
+  transition: color var(--t-fast) var(--ease), border-color var(--t-fast) var(--ease);
+}
+.body a:hover,
+.body a:focus-visible { border-color: var(--accent); }
 .body b { font-weight: 400; color: var(--ink); }
 
 /* The one paragraph set in mono, because it describes the instrument. */

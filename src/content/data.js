@@ -14,7 +14,7 @@ export const person = {
   role: 'Neuroscientist',
   location: 'Israel',
   // The one-sentence thesis of the whole site.
-  thesis: 'I spent a decade learning how the brain <em>breaks</em>. Now I build the light that <em>quiets</em> it.',
+  thesis: 'I spent a decade learning how the brain <em>breaks</em>. Now I help build a platform to <em>fix</em> it.',
   affiliations: [
     { what: 'Director of In-vivo Research', where: 'Modulight Bio' },
     { what: 'Research Associate', where: 'Weizmann Institute' },
@@ -32,7 +32,7 @@ export const meta = {
 export const now = {
   heading: 'Turning a receptor into a <em>dimmer switch</em>',
   paragraphs: [
-    'At Modulight Bio I direct in-vivo research on an optogenetic therapy. The platform uses <b>optoGPCRs</b>: light-activated G protein-coupled receptors delivered to the nerves that carry pain. Our workhorse is <b>eOPN3</b>, a rhodopsin borrowed from mosquitoes that recruits the Gi/o cascade and suppresses neurotransmitter release at the presynaptic terminal.',
+    'At <a href="https://modulight.bio" target="_blank" rel="noopener">Modulight Bio</a> I direct in-vivo research on an optogenetic therapy. The platform uses <b>optoGPCRs</b>: light-activated G protein-coupled receptors delivered to the nerves that carry pain. Our workhorse is <b>eOPN3</b>, a rhodopsin borrowed from mosquitoes that recruits the Gi/o cascade and suppresses neurotransmitter release at the presynaptic terminal.',
     'It does not force a neuron to fire, and it does not clamp it silent. It turns down what that terminal releases, and then lets it come back on its own. The first indication we are taking towards the clinic is <em>trigeminal neuropathic pain</em>, where the nerve is reachable enough for light to do the work.'
   ],
   // Explains the interactive control without instructing the reader like a manual.
