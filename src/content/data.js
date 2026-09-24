@@ -175,6 +175,7 @@ export const papersVisible = 5
  * no screenshots, no cards, no metrics.
  */
 export const projects = [
+  { kind: 'Model', label: 'NextPredictor', href: 'https://nextpredictor.vercel.app', after: ', football match probabilities, logged before kickoff' },
   { kind: 'Game', label: 'Brainrot Crush', href: 'https://brainrot-crush.vercel.app' },
   { kind: 'Tool', label: 'מחשבון קלוריות', lang: 'he', dir: 'rtl', href: 'https://calorie-calculator-heb.vercel.app', after: ', a Hebrew calorie and carb counter' },
   { kind: 'Script', label: 'Guitar tabs to printable PDF', href: 'https://github.com/swissclock/SongsterrScraper' },
