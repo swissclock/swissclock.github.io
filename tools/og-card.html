@@ -1,71 +1,81 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
 <meta charset="utf-8">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,200;6..72,300&family=Geist+Mono:wght@400;500&display=swap">
+<title>og card</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,200;0,6..72,300;1,6..72,300&family=Geist+Mono:wght@400;500&display=swap">
 <style>
+  /*
+   * The 1200x630 link-preview card, rendered rather than drawn: it imports the
+   * site's own scene module, so the model on the card is the model on the page
+   * and the two cannot drift apart. See tools/README.md for the command.
+   */
   * { box-sizing: border-box; margin: 0; }
-  html, body { width: 1200px; height: 630px; }
+  html, body { width: 1200px; height: 630px; overflow: hidden; }
   body {
     background: #080a0e;
     color: #e9ecf1;
     font: 300 18px/1.6 'Newsreader', Georgia, serif;
     position: relative;
-    overflow: hidden;
   }
+
+  /* Same share of the width the model gets on the site, so the framing the
+     camera was composed for is the framing the card shows. */
+  #gl { position: absolute; top: 0; right: 0; width: 624px; height: 630px; }
+
+  .veil {
+    position: absolute; inset: 0;
+    background:
+      linear-gradient(90deg, #080a0e 0%, rgba(8,10,14,.97) 42%, rgba(8,10,14,.55) 58%, transparent 72%),
+      radial-gradient(115% 95% at 78% 46%, transparent 42%, rgba(8,10,14,.45) 78%, rgba(8,10,14,.9) 100%);
+  }
+
   .frame {
-    position: absolute;
-    inset: 0;
+    position: absolute; inset: 0;
     padding: 74px 88px 232px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
+    display: flex; flex-direction: column; justify-content: center;
   }
   .eyebrow {
     font: 500 15px/1 'Geist Mono', monospace;
-    letter-spacing: 0.24em;
-    text-transform: uppercase;
-    color: #7fa3c9;
-    margin-bottom: 34px;
+    letter-spacing: .24em; text-transform: uppercase;
+    color: #7fa3c9; margin-bottom: 34px;
   }
   h1 {
     font: 200 112px/1.0 'Newsreader', Georgia, serif;
-    letter-spacing: -0.016em;
-    margin-left: -0.05em;
+    letter-spacing: -.016em; margin-left: -.05em;
   }
   h1 .b { color: #a8b0bd; }
   .line {
     font: 300 30px/1.42 'Newsreader', Georgia, serif;
-    color: #a8b0bd;
-    margin-top: 28px;
-    max-width: 34ch;
+    color: #a8b0bd; margin-top: 28px; max-width: 26ch;
   }
   .line em { font-style: italic; color: #e9ecf1; }
+
   .meta {
-    position: absolute;
-    left: 88px; right: 88px; bottom: 116px;
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-end;
+    position: absolute; left: 88px; right: 88px; bottom: 116px;
+    display: flex; justify-content: space-between; align-items: flex-end;
     font: 400 15px/1.7 'Geist Mono', monospace;
-    letter-spacing: 0.13em;
-    text-transform: uppercase;
-    color: #6b7382;
+    letter-spacing: .13em; text-transform: uppercase; color: #6b7382;
   }
   .meta b { color: #a8b0bd; font-weight: 400; }
-  /* The signal, the same motif the site is built on. */
-  .trace { position: absolute; left: 0; right: 0; bottom: 0; height: 84px; opacity: 0.8; }
-  .glow {
-    position: absolute;
-    right: -120px; top: 50%;
-    width: 620px; height: 620px;
-    transform: translateY(-50%);
-    background: radial-gradient(circle, rgba(127,163,201,0.14), transparent 62%);
-  }
-</style>
 
-<div class="glow"></div>
+  /* The signal, the motif the whole site is built on. */
+  .trace { position: absolute; left: 0; right: 0; bottom: 0; height: 84px; opacity: .8; }
+</style>
+</head>
+<body>
+
+<canvas id="gl"></canvas>
+<div class="veil"></div>
 
 <svg class="trace" viewBox="0 0 1200 84" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
   <path fill="none" stroke="#7fa3c9" stroke-width="1.6" stroke-linejoin="round"
-        d="M0 52 L24 50 L48 55 L72 50 L96 55 L120 50 L144 55 L148 46 L154 8 L162 78 L172 44 L184 56 L198 51 L222 55 L246 50 L270 55 L294 50 L318 55 L342 50 L366 55 L390 50 L414 55 L438 50 L462 55 L486 50 L510 55 L534 50 L558 55 L582 50 L606 55 L630 50 L654 55 L678 50 L702 55 L726 50 L750 55 L774 50 L798 55 L822 50 L846 55 L870 50 L894 55 L918 50 L942 55 L966 50 L990 55 L1014 50 L1038 55 L1062 50 L1086 55 L1110 50 L1134 55 L1158 50 L1182 55 L1206 50 L1200 52"/>
+        d="M0 52 L24 55 L48 50 L72 55 L96 50 L120 55 L144 50 L148 46 L154 8 L162 78 L172 44 L184 56 L198 51
+           L222 55 L246 50 L270 55 L294 50 L318 55 L342 50 L366 55 L390 50 L414 55 L438 50 L462 55 L486 50
+           L490 46 L496 8 L504 78 L514 44 L526 56 L540 51 L564 55 L588 50 L612 55 L636 50 L660 55 L684 50
+           L708 55 L732 50 L756 55 L780 50 L804 55 L828 50 L852 55 L876 50 L880 46 L886 8 L894 78 L904 44
+           L916 56 L930 51 L954 55 L978 50 L1002 55 L1026 50 L1050 55 L1074 50 L1098 55 L1122 50 L1146 55
+           L1170 50 L1200 52"/>
   <path fill="none" stroke="#3b424e" stroke-width="1" d="M0 83.5 L1200 83.5"/>
 </svg>
 
@@ -79,3 +89,30 @@
   <span>Director of In-vivo Research, <b>Modulight Bio</b></span>
   <span><b>swissclock.github.io</b></span>
 </div>
+
+<script type="module">
+import { createScene } from '/src/scene/index.js'
+
+const canvas = document.getElementById('gl')
+const scene = createScene({ canvas, cool: '#7fa3c9', warm: '#ff5c33', cord: '#2c3644' })
+
+scene.resize(624, 630)
+scene.setFrame(0)
+
+// The geometry is fetched inside the module and the camera eases towards its
+// framing, so neither is ready on the first frame. Wait for the binaries, then
+// run the loop long enough for the easing to settle before the shot is taken.
+const state = { time: 6, activity: 1, suppression: 0, burst: 0, lit: false }
+await new Promise((resolve) => setTimeout(resolve, 3000))
+for (let i = 0; i < 600; i++) {
+  scene.update(1 / 60, state)
+  scene.render()
+}
+
+// The screenshot command waits on this: it is the only reliable signal that the
+// model is both loaded and settled.
+document.body.dataset.ready = 'true'
+document.title = 'og card ready'
+</script>
+</body>
+</html>

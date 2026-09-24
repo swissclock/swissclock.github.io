@@ -31,7 +31,7 @@ export const person = {
  */
 export const site = {
   url: 'https://swissclock.github.io/',
-  image: 'https://swissclock.github.io/og.png',
+  image: 'https://swissclock.github.io/og.jpg',
   sameAs: [
     'https://www.linkedin.com/in/evyatar-swissa-458283240',
     'https://github.com/swissclock'
