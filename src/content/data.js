@@ -33,7 +33,8 @@ export const site = {
   url: 'https://swissclock.github.io/',
   image: 'https://swissclock.github.io/og.jpg',
   sameAs: [
-    'https://www.linkedin.com/in/evyatar-swissa-458283240',
+    'https://orcid.org/0000-0002-6644-7230',
+    'https://www.linkedin.com/in/evyatar-swissa-458283240/',
     'https://github.com/swissclock'
   ]
 }
@@ -202,9 +203,10 @@ export const contact = {
   body: 'Open to collaboration on neurovascular biology, optogenetic therapeutics, and behavioural pipelines that a regulator has to trust.',
   links: [
     { label: 'Email', href: `mailto:${person.email}` },
-    { label: 'LinkedIn', href: 'https://www.linkedin.com/in/evyatar-swissa-458283240' },
+    { label: 'LinkedIn', href: 'https://www.linkedin.com/in/evyatar-swissa-458283240/' },
     { label: 'GitHub', href: 'https://github.com/swissclock' },
-    { label: 'PubMed', href: 'https://pubmed.ncbi.nlm.nih.gov/?term=Swissa+E%5BAuthor%5D' }
+    { label: 'PubMed', href: 'https://pubmed.ncbi.nlm.nih.gov/?term=Swissa+E%5BAuthor%5D' },
+    { label: 'ORCID', href: 'https://orcid.org/0000-0002-6644-7230' }
   ]
 }
 

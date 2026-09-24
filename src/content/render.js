@@ -61,6 +61,14 @@ function jsonld () {
         url: C.site.url,
         image: C.site.image,
         sameAs: C.site.sameAs,
+        // The one identifier in the set that is a registry entry rather than an
+        // account, which is what a scholarly index looks for.
+        identifier: {
+          '@type': 'PropertyValue',
+          propertyID: 'ORCID',
+          value: '0000-0002-6644-7230',
+          url: 'https://orcid.org/0000-0002-6644-7230'
+        },
         worksFor: {
           '@type': 'Organization',
           name: 'Modulight Bio',
