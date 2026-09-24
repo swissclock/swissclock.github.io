@@ -23,6 +23,21 @@ export const person = {
   email: 'swissev@gmail.com'
 }
 
+/**
+ * Where the site lives, and the profiles that are unambiguously the same
+ * person. `sameAs` is how a search engine ties this page to the accounts it
+ * already knows, so only verified profile URLs belong here — never a search
+ * query, and never a profile that has not been confirmed.
+ */
+export const site = {
+  url: 'https://swissclock.github.io/',
+  image: 'https://swissclock.github.io/og.png',
+  sameAs: [
+    'https://www.linkedin.com/in/evyatar-swissa-458283240',
+    'https://github.com/swissclock'
+  ]
+}
+
 /** Written for a search result and a link preview, so it stands without the page. */
 export const meta = {
   description:

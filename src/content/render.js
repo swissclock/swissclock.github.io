@@ -38,6 +38,61 @@ const span = (e) => (e.to ? `${stamp(e.from)} — ${stamp(e.to)}` : stamp(e.from
 const eyebrow = (i) => `<span class="tag"><em aria-hidden="true">${n2(i)} — </em>${esc(C.sections[i].label)}</span>`
 const head = (i, html) => `<h2 id="${esc(C.sections[i].id)}-title">${html}</h2>`
 
+/**
+ * Structured data. The page's whole job in search is to be the answer to this
+ * person's name, and that is an entity question rather than a keyword one:
+ * `sameAs` is what lets a search engine merge this page with the LinkedIn and
+ * GitHub accounts it already has, instead of treating all three as strangers.
+ *
+ * Every claim here is also stated in the visible page, which is the rule for
+ * structured data: nothing asserted to a crawler that a reader cannot see.
+ */
+function jsonld () {
+  const employer = C.path.entries.find((e) => e.live && e.where.startsWith('Modulight'))
+  const graph = {
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@type': 'Person',
+        '@id': C.site.url + '#person',
+        name: C.person.name,
+        jobTitle: employer ? employer.title : C.person.role,
+        description: C.meta.description,
+        url: C.site.url,
+        image: C.site.image,
+        sameAs: C.site.sameAs,
+        worksFor: {
+          '@type': 'Organization',
+          name: 'Modulight Bio',
+          url: 'https://modulight.bio'
+        },
+        affiliation: [
+          { '@type': 'Organization', name: 'Modulight Bio', url: 'https://modulight.bio' },
+          { '@type': 'CollegeOrUniversity', name: 'Weizmann Institute of Science' }
+        ],
+        alumniOf: { '@type': 'CollegeOrUniversity', name: 'Ben-Gurion University of the Negev' },
+        knowsAbout: [
+          'Neuroscience', 'Optogenetics', 'Blood-brain barrier', 'Epilepsy',
+          'Preclinical research', 'Trigeminal neuropathic pain'
+        ]
+      },
+      {
+        '@type': 'ProfilePage',
+        '@id': C.site.url + '#page',
+        url: C.site.url,
+        name: `${C.person.name} — ${C.person.role}`,
+        description: C.meta.description,
+        inLanguage: 'en-GB',
+        about: { '@id': C.site.url + '#person' },
+        mainEntity: { '@id': C.site.url + '#person' }
+      }
+    ]
+  }
+  // </script> cannot appear inside the block, and JSON-LD is read as data, so
+  // escaping the slash is the safe and standard way to keep the tag closed.
+  return `<script type="application/ld+json">${JSON.stringify(graph).replace(/</g, '\\u003c')}</script>`
+}
+
 function who () {
   return `${esc(C.person.name)}<span>${esc(C.person.role)}</span><span>${esc(C.person.location)}</span>`
 }
@@ -57,7 +112,7 @@ function lede () {
     .join(' · ')
   return `
     <div class="col">
-      <h1 id="lede-title"><span>${esc(given)}</span><span class="b">${esc(family)}</span></h1>
+      <h1 id="lede-title"><span>${esc(given)}</span> <span class="b">${esc(family)}</span></h1>
       <p class="lede-p">${C.person.thesis}</p>
       <p class="sub">${aff}</p>
     </div>`
@@ -190,6 +245,7 @@ function footer () {
 
 /** Replaces <!--@name--> markers in index.html. */
 export const slots = {
+  jsonld,
   who,
   nav,
   sections: allSections,
