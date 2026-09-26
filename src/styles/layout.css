@@ -237,6 +237,53 @@ footer {
   h2 { max-width: none; }
 }
 
+/* A phone held upright has no side to put the model on, and behind the text it
+   can only ever be a ghost: under the veil above it peaked at about a sixth of
+   its strength. But the lower part of the first screen is empty, so here the
+   model gets that band to itself at full strength, and the lede moves up to
+   leave it clear. Landscape keeps the rules above; it is too short for a band. */
+@media (max-width: 1080px) and (orientation: portrait) {
+  /* The band starts where the lede ends. That point moves with the phone's
+     height, the width the text wraps at, and whether the fonts have arrived,
+     so main.js measures it into --band-top rather than this guessing at it.
+     54svh is only the first-paint stand-in. */
+  #gl {
+    top: var(--band-top, 54svh);
+    bottom: auto;
+    width: 100%;
+    /* Explicit, not top + bottom: a canvas is a replaced element, so with
+       height: auto it ignores `bottom` and takes its intrinsic aspect, which
+       the resize observer then feeds back into the drawing buffer. */
+    height: var(--band-h, 46svh);
+    /* Short, because it follows the scroll: a long ease trails the finger. */
+    transition: opacity 0.3s var(--ease);
+    /* The fiber runs up well past the brain, and on a short screen (Safari
+       with its toolbars showing) the top of the band reaches the last lines of
+       the lede. Fading the band in over its top fifth lets the fiber emerge
+       from the dark instead of drawing a line through the text; the brain
+       itself sits below the fade at every phone height. */
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 20%);
+    mask-image: linear-gradient(to bottom, transparent 0, #000 20%);
+  }
+
+  /* --gl-presence is written by main.js as the reader scrolls: 1 at the top of
+     the page, settling to a quiet trace once content is coming up over the
+     band. Delivering light raises it again, so the control is never pressed at
+     something the reader cannot see. */
+  #gl.is-loaded { opacity: var(--gl-presence, 1); }
+  html.is-lit #gl.is-loaded { opacity: max(var(--gl-presence, 1), 0.85); }
+  html.is-recovering #gl.is-loaded { opacity: max(var(--gl-presence, 1), 0.55); }
+
+  /* At the top of the page there is no text over the band to protect, and
+     further down the canvas opacity does the job the veil used to. */
+  .veil { display: none; }
+
+  #lede {
+    padding-top: max(108px, 14vh);
+    padding-top: max(108px, 14svh);
+  }
+}
+
 /* --- narrow ------------------------------------------------------------ */
 
 /* Below this the identity and the six section links cannot share one line

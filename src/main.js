@@ -116,6 +116,59 @@ function trackSection () {
 
 addEventListener('scroll', trackSection, { passive: true })
 
+/* --- the model's presence on a phone ------------------------------------- */
+
+/**
+ * Held upright on a narrow screen, the model has the lower part of the first
+ * screen to itself and the stylesheet shows it at whatever --gl-presence says:
+ * full at the top of the page, and settled to a quiet trace by the time the
+ * reader has scrolled a third of a screen and content is arriving over it. On
+ * a wide screen the stylesheet never reads the property, so this is inert.
+ *
+ * Rounded to hundredths so a long scroll writes the property eighty times at
+ * most rather than once per event.
+ */
+const PRESENCE_FLOOR = 0.2
+const PRESENCE_SPAN = 0.35   // of a viewport height
+let presence = -1
+let viewportHeight = innerHeight
+
+function updatePresence () {
+  const t = Math.min(1, Math.max(0, scrollY / (viewportHeight * PRESENCE_SPAN)))
+  const next = Math.round((1 - t * (1 - PRESENCE_FLOOR)) * 100) / 100
+  if (next === presence) return
+  presence = next
+  document.documentElement.style.setProperty('--gl-presence', String(next))
+}
+
+addEventListener('scroll', updatePresence, { passive: true })
+updatePresence()
+
+/**
+ * Where the band begins: just under the last line of the lede, measured at the
+ * top of the page. On a very short screen that would leave the model too little
+ * room to read as a brain, so the band keeps at least MIN_BAND of height and
+ * accepts running under the lede's last line, where the stylesheet's fade at
+ * the top of the band keeps the two apart. A layout read, but only on resize
+ * and once the fonts land, never in the frame loop.
+ */
+const MIN_BAND = 240
+const ledeText = document.querySelector('#lede .col')
+
+function placeBand () {
+  if (!ledeText) return
+  const textBottom = ledeText.getBoundingClientRect().bottom + scrollY
+  const top = Math.round(Math.max(0, Math.min(textBottom + 8, innerHeight - MIN_BAND)))
+  const rootStyle = document.documentElement.style
+  rootStyle.setProperty('--band-top', `${top}px`)
+  rootStyle.setProperty('--band-h', `${Math.max(MIN_BAND, innerHeight - top)}px`)
+}
+
+placeBand()
+// The display face is taller than its fallback, so the lede's height is only
+// final once it has loaded.
+document.fonts?.ready.then(placeBand)
+
 addEventListener('pointermove', (event) => {
   scene.setPointer((event.clientX / innerWidth - 0.5) * 2, (event.clientY / innerHeight - 0.5) * 2)
 }, { passive: true })
@@ -141,6 +194,11 @@ new ResizeObserver(([entry]) => {
 }).observe(canvas)
 
 function resize () {
+  // iOS changes the viewport height as its toolbars come and go, and that
+  // moves where "a third of a screen" falls.
+  viewportHeight = innerHeight
+  updatePresence()
+  placeBand()
   rules.resize()
   trackSection()
 }
