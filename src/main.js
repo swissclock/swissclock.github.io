@@ -47,11 +47,13 @@ let scene = {
 }
 
 import('./scene/index.js').then(({ createScene }) => {
-  scene = createScene({ canvas, cool: COLOURS.resting, warm: COLOURS.lit, cord: token('--cord') })
+  scene = createScene({ canvas, cool: COLOURS.resting, warm: COLOURS.lit, cord: token('--cord'), ink: token('--ink'), dim: token('--ink-4'), label: token('--ink-3'), ground: token('--bg'), onFit: placeCaption })
   // Replay the viewport and the section the reader is already on; a scene that
   // starts at frame 0 with a square aspect would visibly snap into place.
   sizeScene()
   scene.setFrame(active)
+  scene.setView(shownViz)
+  measureFun()
 })
 
 const LABELS = { lit: '620 nm · on', recovering: 'recovering', resting: '620 nm · hold' }
@@ -112,6 +114,7 @@ function trackSection () {
     else link.removeAttribute('aria-current')
   })
   scene.setFrame(active)
+  syncCaption()
 }
 
 addEventListener('scroll', trackSection, { passive: true })
@@ -167,7 +170,7 @@ function placeBand () {
 placeBand()
 // The display face is taller than its fallback, so the lede's height is only
 // final once it has loaded.
-document.fonts?.ready.then(placeBand)
+document.fonts?.ready.then(() => { placeBand(); measureFun() })
 
 addEventListener('pointermove', (event) => {
   scene.setPointer((event.clientX / innerWidth - 0.5) * 2, (event.clientY / innerHeight - 0.5) * 2)
@@ -193,17 +196,172 @@ new ResizeObserver(([entry]) => {
   scene.resize(Math.max(1, width), Math.max(1, height))
 }).observe(canvas)
 
+const footer = document.querySelector('footer')
+
 function resize () {
+  if (footer) document.documentElement.style.setProperty('--footer-h', `${Math.ceil(footer.getBoundingClientRect().height)}px`)
   // iOS changes the viewport height as its toolbars come and go, and that
   // moves where "a third of a screen" falls.
   viewportHeight = innerHeight
   updatePresence()
   placeBand()
+  measureFun()
   rules.resize()
   trackSection()
 }
 addEventListener('resize', resize)
 addEventListener('orientationchange', resize)
+
+/* --- side projects ------------------------------------------------------- */
+
+/**
+ * At rest the section's model is its general view. Pointing at a project, or
+ * tabbing to its link, puts that project's description in the caption under
+ * the model, and the two with data behind them bring up their own views. With
+ * no hover to point with, the view takes turns on its own while the section is
+ * on screen, so a phone still sees both.
+ */
+const projectRows = [...document.querySelectorAll('.project')]
+const vizRows = projectRows.filter((row) => row.dataset.viz)
+const caption = document.getElementById('fun-caption')
+const captionKind = caption?.querySelector('[data-kind]')
+const captionAbout = caption?.querySelector('[data-about]')
+const captionLive = caption?.querySelector('[data-live]')
+const FUN = sections.findIndex((section) => section.id === 'fun')
+let pointedRow = null
+let shownViz
+let shownLive = null
+
+function showViz (name) {
+  if (name === shownViz) return
+  shownViz = name
+  vizRows.forEach((row) => row.classList.toggle('showing', row.dataset.viz === name))
+  scene.setView?.(name)
+}
+
+function point (row) {
+  pointedRow = row
+  showViz(row?.dataset.viz ?? null)
+  placeCaption()
+  if (row && caption) {
+    captionKind.textContent = row.querySelector('.when').textContent
+    captionAbout.textContent = row.querySelector('p')?.textContent ?? ''
+    shownLive = null
+  }
+  syncCaption()
+}
+
+/**
+ * The caption stands right under the view it describes: left-aligned to it,
+ * no wider than it, a little below its foot. The scene reports where each view
+ * was placed, in normalised coordinates of the canvas, whenever it refits.
+ */
+let placedViews = {}
+const CAPTION_GAP = 26
+
+function placeCaption (boxes) {
+  if (boxes) placedViews = boxes
+  const box = placedViews[pointedRow?.dataset.viz] ?? placedViews.lotto
+  if (!caption || !box) return
+  const frame = canvas.getBoundingClientRect()
+  const left = frame.left + ((box.x0 + 1) / 2) * frame.width
+  const width = ((box.x1 - box.x0) / 2) * frame.width
+  const foot = frame.top + ((1 - box.y0) / 2) * frame.height
+  caption.style.setProperty('--cap-left', `${Math.round(left)}px`)
+  caption.style.setProperty('--cap-top', `${Math.round(foot + CAPTION_GAP)}px`)
+  caption.style.setProperty('--cap-width', `${Math.round(Math.max(280, width))}px`)
+}
+
+function syncCaption () {
+  document.documentElement.classList.toggle('caption-on', Boolean(pointedRow) && active === FUN)
+}
+
+for (const row of projectRows) {
+  row.addEventListener('pointerenter', () => point(row))
+  row.addEventListener('pointerleave', () => point(null))
+  row.addEventListener('focusin', () => point(row))
+  row.addEventListener('focusout', () => point(null))
+}
+showViz(null)
+
+if (vizRows.length && matchMedia('(hover: none)').matches) {
+  const turns = [null, ...vizRows.map((row) => row.dataset.viz)]
+  let turn = 0
+  setInterval(() => {
+    if (active !== FUN || document.hidden) return
+    turn = (turn + 1) % turns.length
+    showViz(turns[turn])
+  }, 8000)
+}
+
+/**
+ * Where the section's views may stand, measured as the section reads when the
+ * rail's link brings it in: its top at the top of the window. They are fitted
+ * between its label and its last project, so a view never rises over the
+ * heading or sinks into the caption's room. A layout read, so only on resize
+ * and once the fonts have landed.
+ */
+const funSection = document.getElementById('fun')
+
+function measureFun () {
+  if (!funSection || !projectRows.length) return
+  // Below the layout change the model sits behind the text rather than beside
+  // it, and the views keep a plain upper-middle band of the canvas.
+  if (innerWidth <= 1080) {
+    scene.setFitBox?.({ top: 0.55, bottom: -0.35 })
+    return
+  }
+  const origin = funSection.getBoundingClientRect().top
+  const top = funSection.querySelector('.tag').getBoundingClientRect().top - origin
+  const bottom = projectRows[projectRows.length - 1].getBoundingClientRect().bottom - origin
+  const height = canvas.getBoundingClientRect().height || innerHeight
+  scene.setFitBox?.({ top: 1 - (2 * top) / height, bottom: 1 - (2 * bottom) / height })
+}
+
+/* --- turning the brain on the last section -------------------------------- */
+
+/**
+ * On the contact section the brain can be turned: press on the model's side of
+ * the page and drag. Mouse and pen only, so a finger still scrolls the page;
+ * and never from a link, a button or the text, which keep their own gestures.
+ * Here the press belongs to the turn, so it is taken before the canvas would
+ * read it as holding the light: the corner control still delivers light.
+ * The scene does nothing with a turn on any other section.
+ */
+const CONTACT = sections.findIndex((section) => section.id === 'contact')
+let dragging = null
+
+function overModel (event) {
+  if (active !== CONTACT || event.pointerType === 'touch') return false
+  if (event.target.closest?.('a, button, input, textarea, label, .col, footer')) return false
+  const box = canvas.getBoundingClientRect()
+  return event.clientX > box.left + box.width * 0.08
+}
+
+addEventListener('pointerdown', (event) => {
+  if (event.button !== 0 || !overModel(event)) return
+  dragging = { x: event.clientX, y: event.clientY }
+  document.documentElement.classList.add('is-turning')
+  event.preventDefault()
+  event.stopPropagation()
+}, { capture: true })
+
+addEventListener('pointermove', (event) => {
+  if (dragging) {
+    scene.turn?.(((event.clientX - dragging.x) / innerWidth) * 5, ((event.clientY - dragging.y) / innerHeight) * 2.5)
+    dragging.x = event.clientX
+    dragging.y = event.clientY
+    return
+  }
+  document.documentElement.classList.toggle('can-turn', overModel(event))
+}, { passive: true })
+
+function stopTurning () {
+  dragging = null
+  document.documentElement.classList.remove('is-turning')
+}
+addEventListener('pointerup', stopTurning)
+addEventListener('pointercancel', stopTurning)
 
 /* --- earlier papers ------------------------------------------------------ */
 const moreButton = document.getElementById('more-papers')
@@ -265,6 +423,16 @@ function tick (now) {
 
   scene.update(dt, frameState)
   scene.render()
+  if (pointedRow?.dataset.viz && active === FUN) {
+    const live = scene.live ?? ''
+    if (live !== shownLive) {
+      shownLive = live
+      captionLive.textContent = live
+    }
+  } else if (shownLive !== '') {
+    shownLive = ''
+    if (captionLive) captionLive.textContent = ''
+  }
   rules.draw(signal, COLOURS[stim.state], RULE)
 }
 

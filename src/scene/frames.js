@@ -32,6 +32,8 @@ export const frames = [
   { position: new Vector3(-4.47, 0.85, 37.27), target: new Vector3(-0.41, -0.73, 0.61), spin: -0.95, hot: 0.14 },
   // 05 Papers — low angle, oblique, out of the way of a long list
   { position: new Vector3(1.35, -4.03, 28.31), target: new Vector3(-0.73, -0.76, 0.99), spin: -1.8, hot: 0.18 },
-  // 06 Contact — centred, facing away
+  // 06 For fun — square on, looking down the raster from just above its newest rows
+  { position: new Vector3(0.4, 5.4, 16.6), target: new Vector3(0.1, -0.6, -1.4), spin: 0, hot: 0 },
+  // 07 Contact — centred, facing away
   { position: new Vector3(-0.81, 1.06, 30.39), target: new Vector3(-0.81, -0.2, 0.45), spin: -2.3, hot: 0.3 }
 ]

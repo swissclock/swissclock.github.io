@@ -3,3 +3,8 @@ dist/
 .DS_Store
 *.log
 .vite/
+
+# Data-prep downloads and intermediates, and local review recordings
+tools/data-prep/work/
+mockups/
+tools/verify/out/

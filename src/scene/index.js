@@ -1,7 +1,11 @@
 /**
  * The model: a point-sampled mouse brain from the Allen Common Coordinate
  * Framework, with the trigeminal nerve and its sensory nucleus loaded
- * separately so the therapeutic target can be lit on its own.
+ * separately so the therapeutic target can be lit on its own. On the research
+ * framing the shell gives way to the same brain's vasculature (vessels.js),
+ * and the light arrives through the cortical surface instead of the fiber. On
+ * the side projects the shell's dots leave the brain and become data
+ * (fun/).
  *
  * Geometry ships as Int16 binaries (6 bytes per point, 1/160 mm per unit) and
  * is fetched after first paint, so the text never waits on it.
@@ -9,7 +13,7 @@
 
 import {
   AdditiveBlending, BufferAttribute, BufferGeometry, CanvasTexture,
-  Color, ColorManagement, Group, Line, LineBasicMaterial, NormalBlending,
+  Color, ColorManagement, Euler, Group, Line, LineBasicMaterial, Matrix4, NormalBlending,
   PerspectiveCamera, Points, Scene, ShaderMaterial, Sprite, SpriteMaterial,
   Vector3, WebGLRenderer
 } from 'three'
@@ -21,6 +25,18 @@ ColorManagement.enabled = false
 
 import { pointVertex, pointFragment } from './shaders.js'
 import { frames } from './frames.js'
+import { loadVessels, createVessels, SPOT } from './vessels.js'
+import { loadFun, createFun } from './fun/index.js'
+import { loadTracts, createTracts } from './tracts.js'
+
+/** The section whose framing shows the vessels rather than the shell. */
+const RESEARCH = 2
+/** And the one whose framing reorganises the shell's dots into data. */
+const FUN = 5
+/** The last: the brain's long-range connections. */
+const CONTACT = 6
+/** Where the corpus callosum crosses the midline, in model mm. */
+const CALLOSUM = new Vector3(1.93, 2.1, 0)
 
 const SCALE = 160
 
@@ -117,6 +133,10 @@ function cordPoints (controls, divisions) {
   return out
 }
 
+function smoothstep01 (x) {
+  return x * x * (3 - 2 * x)
+}
+
 /** Frame-rate independent smoothing: the fraction of the gap to close in `dt`. */
 function approach (rate, dt) {
   return 1 - Math.exp(-rate * dt)
@@ -164,10 +184,12 @@ function createRenderer (canvas) {
 }
 
 /**
- * `cool`, `warm` and `cord` are the state colours, read out of tokens.css by
- * main.js: the palette is authored there and nowhere else.
+ * `cool`, `warm` and `cord` are the state colours, `ink` the vessels' response
+ * colour, and `dim`, `label` and `ground` the data views' quieter tones, read
+ * out of tokens.css by main.js: the palette is authored there and nowhere else.
+ * `onFit` hears where the side-projects views were placed on the canvas.
  */
-export function createScene ({ canvas, cool, warm, cord }) {
+export function createScene ({ canvas, cool, warm, cord, ink, dim, label, ground, onFit }) {
   const COOL = new Color(cool)
   const WARM = new Color(warm)
   const CORD = new Color(cord)
@@ -203,7 +225,8 @@ export function createScene ({ canvas, cool, warm, cord }) {
     uFocus: { value: TIP.clone() },
     uCool: { value: COOL.clone() },
     uWarm: { value: WARM.clone() },
-    uJitter: { value: reduced ? 0 : 1 }
+    uJitter: { value: reduced ? 0 : 1 },
+    uShellFade: { value: 1 }
   }
 
   const materials = []
@@ -232,7 +255,8 @@ export function createScene ({ canvas, cool, warm, cord }) {
 
   // --- fiber ------------------------------------------------------------
   const cordMaterial = new LineBasicMaterial({ color: CORD.clone(), transparent: true, opacity: 0.85 })
-  brain.add(new Line(new BufferGeometry().setFromPoints(cordPoints(CORD_PATH, 60)), cordMaterial))
+  const cordLine = new Line(new BufferGeometry().setFromPoints(cordPoints(CORD_PATH, 60)), cordMaterial)
+  brain.add(cordLine)
 
   const tipMaterial = new SpriteMaterial({
     map: glowTexture(), color: WARM.clone(), transparent: true,
@@ -265,9 +289,14 @@ export function createScene ({ canvas, cool, warm, cord }) {
   Promise.allSettled(GEOMETRY.map((g) => loadPoints(g.url))).then((results) => {
     const missing = []
     results.forEach((result, i) => {
-      if (result.status === 'fulfilled') addPoints(result.value, GEOMETRY[i])
-      else missing.push(GEOMETRY[i].url)
+      if (result.status === 'fulfilled') {
+        addPoints(result.value, GEOMETRY[i])
+        if (i === 0) shellPositions = result.value
+      } else missing.push(GEOMETRY[i].url)
     })
+    if (frame > 0) requestVessels()
+    if (frame > 2) requestFun()
+    if (frame > 3) requestTracts()
     const loaded = results.length - missing.length
     // A portfolio without its ornament is still a portfolio, but a fetch that
     // failed is worth saying out loud once.
@@ -275,9 +304,112 @@ export function createScene ({ canvas, cool, warm, cord }) {
     canvas.classList.add(loaded ? 'is-loaded' : 'is-failed')
   })
 
+  // --- vessels ------------------------------------------------------------
+  // The heaviest geometry on the page and only seen two sections down, so it
+  // is fetched once the reader has left the opening, not with the shell.
+  let vessels = null
+  let vesselMix = 0
+  let vesselsRequested = false
+  const focus = new Vector3()
+
+  // --- side projects --------------------------------------------------------
+  // Small, but only needed near the end of the page, and it borrows the
+  // shell's own positions as its starting points.
+  let shellPositions = null
+  let fun = null
+  let funMix = 0
+  let funRequested = false
+  let funView = null
+  let funBox = null
+
+  /**
+   * Maps a point in the brain group's frame to the screen as the side-projects
+   * framing settles: that frame's camera and spin, without the pointer's
+   * parallax or the idle drift, which are small and should move the views
+   * rather than be fitted away.
+   */
+  function fitFun () {
+    if (!fun || !funBox) return
+    const f = frames[FUN]
+    const view = camera.clone()
+    view.position.copy(f.position)
+    view.lookAt(f.target)
+    view.updateMatrixWorld()
+    const turn = new Matrix4().makeRotationFromEuler(new Euler(0.06, f.spin, 0))
+    onFit?.(fun.fit((point) => point.clone().applyMatrix4(turn).project(view), funBox))
+  }
+
+  function requestFun () {
+    if (funRequested || !shellPositions) return
+    funRequested = true
+    loadFun('/data/fun.json').then((data) => {
+      fun = createFun(data, brain, shared, shellPositions, {
+        ink: new Color(ink), dim: new Color(dim), warm: WARM.clone(), inkCss: ink, labelCss: label, ground: ground
+      })
+      fun.setView(funView)
+      fitFun()
+    }).catch((error) => console.warn(`Side-project data unavailable: ${error.message}`))
+  }
+
+  // --- tracts ---------------------------------------------------------------
+  let tracts = null
+  let tractsMix = 0
+  let tractsRequested = false
+  // The reader can turn the brain on this framing; the turn eases away on
+  // any other.
+  const turn = { yaw: 0, pitch: 0, at: -99 }
+  let lastTime = 0
+
+  function requestTracts () {
+    if (tractsRequested || !materials.length) return
+    tractsRequested = true
+    loadTracts('/data/tracts.bin').then((data) => {
+      tracts = createTracts(data, brain, shared, { ink: new Color(ink) })
+    }).catch((error) => console.warn(`Tract geometry unavailable: ${error.message}`))
+  }
+
+  function requestVessels () {
+    if (vesselsRequested || !materials.length) return
+    vesselsRequested = true
+    loadVessels('/data/vessels.bin').then((data) => {
+      vessels = createVessels(data, brain, shared, { lift: new Color(ink), spark: new Color(ink) })
+    }).catch((error) => console.warn(`Vessel geometry unavailable: ${error.message}`))
+  }
+
   return {
     setFrame (index) {
       frame = Math.max(0, Math.min(frames.length - 1, index))
+      if (frame > 0) requestVessels()
+      if (frame > 2) requestFun()
+      if (frame > 3) requestTracts()
+    },
+
+    /** Turns the brain by a drag, in radians; only the contact framing listens. */
+    turn (dx, dy) {
+      if (frame !== CONTACT) return
+      turn.yaw += dx
+      turn.pitch = Math.max(-0.7, Math.min(0.7, turn.pitch + dy))
+      turn.at = lastTime
+    },
+
+    /** Which side project's data to show: 'lotto', 'football', or null for the landscape. */
+    setView (name) {
+      funView = name
+      fun?.setView(name)
+    },
+
+    /**
+     * Where the side-projects views may stand, in normalised device coordinates
+     * of the canvas: `top` is the section's label, `bottom` its last project.
+     */
+    setFitBox (box) {
+      funBox = box
+      fitFun()
+    },
+
+    /** A line describing what the side-projects view shows right now. */
+    get live () {
+      return fun?.live ?? ''
     },
 
     setPointer (x, y) {
@@ -296,6 +428,7 @@ export function createScene ({ canvas, cool, warm, cord }) {
       camera.fov = 2 * Math.atan(Math.tan((BASE_FOV * Math.PI) / 360) * widen) * (180 / Math.PI)
       camera.updateProjectionMatrix()
       shared.uPixelRatio.value = renderer.getPixelRatio()
+      fitFun()
     },
 
     /**
@@ -332,14 +465,46 @@ export function createScene ({ canvas, cool, warm, cord }) {
       // reads the same for ten seconds and then quietly destroys the framing
       // every section was composed for.
       const drift = reduced ? 0 : Math.sin(state.time * 0.11) * 0.06
-      const spin = f.spin + drift + smoothed.x * 0.1
-      brain.rotation.y += (spin - brain.rotation.y) * ease
-      brain.rotation.x += (0.06 + smoothed.y * 0.05 - brain.rotation.x) * ease
+      // A drag on the contact framing turns the brain, and follows the hand
+      // closely while it lasts; elsewhere the turn unwinds on its own.
+      const turning = state.time - turn.at < 0.2
+      if (frame !== CONTACT) {
+        turn.yaw = Math.atan2(Math.sin(turn.yaw), Math.cos(turn.yaw))
+        turn.yaw *= 1 - approach(1.2, dt)
+        turn.pitch *= 1 - approach(1.2, dt)
+      }
+      const hold = turning ? approach(9, dt) : ease
+      const spin = f.spin + drift + smoothed.x * 0.1 + turn.yaw
+      brain.rotation.y += (spin - brain.rotation.y) * hold
+      brain.rotation.x += (0.06 + smoothed.y * 0.05 + turn.pitch - brain.rotation.x) * hold
+      lastTime = state.time
+
+      // Into the vessel view on the research framing. The shell recedes to a
+      // trace, the fiber withdraws, and the light's front starts from where
+      // the beam meets the cortex rather than from the fiber tip.
+      vesselMix += ((frame === RESEARCH && vessels ? 1 : 0) - vesselMix) * approach(1.6, dt)
+      const mix = smoothstep01(vesselMix)
+      // The data view takes the shell's dots away entirely: they are the data.
+      funMix += ((frame === FUN && fun ? 1 : 0) - funMix) * approach(1.3, dt)
+      const data = smoothstep01(funMix)
+      tractsMix += ((frame === CONTACT && tracts ? 1 : 0) - tractsMix) * approach(1.4, dt)
+      const connect = smoothstep01(tractsMix)
+      // The shell stays at half strength: clear enough to read as the brain the
+      // paths sit in, quiet enough not to compete with them.
+      shared.uShellFade.value = (1 - mix * 0.86) * (1 - data) * (1 - connect * 0.5)
+      focus.lerpVectors(TIP, SPOT, mix).lerp(CALLOSUM, connect)
+      shared.uFocus.value.copy(focus)
+      vessels?.update(dt, state, mix)
+      fun?.update(dt, state, data)
+      tracts?.update(dt, state, connect)
 
       const lit = state.lit ? 1 : 0
-      tipMaterial.opacity += (lit * 0.62 + state.suppression * 0.22 - tipMaterial.opacity) * approach(7.6, dt)
+      const fiber = 1 - Math.max(mix, data, connect)
+      tipMaterial.opacity += ((lit * 0.62 + state.suppression * 0.22) * fiber - tipMaterial.opacity) * approach(7.6, dt)
       tip.scale.setScalar(1.3 + lit * 1.15 + state.suppression * 0.45)
       cordMaterial.color.copy(scratchColour.copy(CORD).lerp(WARM, state.suppression * 0.5))
+      cordMaterial.opacity = 0.85 * fiber
+      cordLine.visible = fiber > 0.002
     },
 
     render () {

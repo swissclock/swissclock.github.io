@@ -23,8 +23,10 @@ These came directly from Evyatar and are not open to reinterpretation.
 
 - **No boasting.** No publication counts, no "11 papers", no first-author badges,
   no stats rows, no metrics tiles. Papers are a plain reverse-chronological list.
-- **Side projects stay quiet.** They are hobbies. One line each under "Also, for
-  fun". No screenshots, no cards, no descriptions of features.
+- **Side projects stay quiet.** They are hobbies, in their own section ("For fun",
+  06): one line each, no screenshots, no cards, no metrics. The two with data
+  behind them (sikui, NextPredictor) lend that real data to the model on hover;
+  their descriptions then sit in a caption under it, in one fixed place.
 - **No invented facts.** Titles, dates, journals, mechanisms and wavelengths come
   from `src/content/data.js`, which was built from his CV and PubMed. If you think
   something is wrong, flag it, do not silently change it.
@@ -64,8 +66,9 @@ Never replace this with an on/off switch, and never make the recovery instant.
 ## 5. One signal, many views
 
 `src/signal/generator.js` is the only source of activity in the site. The model's
-point jitter and burst brightness, and every hairline rule drawn between sections,
-read from that one object each frame.
+point jitter and burst brightness, every view's flashes and impulses, and every
+hairline rule drawn between sections, read from that one object each frame. The
+rules stop before "For fun": from there on the page is off the clock.
 
 An earlier draft animated the trace and the model independently and the desync was
 immediately obvious. **Do not introduce a second generator, a second clock, or a
@@ -101,11 +104,17 @@ Authored in `src/styles/tokens.css`. Change tokens, not scattered literals.
 ```
 index.html            shell with <!--@slot--> markers
 vite.config.js        plugin renders content into the HTML at build and dev time
-public/data/*.bin     Int16 point clouds, 1/160 mm per unit, 6 bytes per point
+public/data/*.bin     Allen shell and highlights: Int16 points, 1/160 mm per unit
+public/data/vessels.bin  Research: VesSAP vasculature registered to the Allen frame
+public/data/fun.json     For fun: Lotto draws and NextPredictor season simulations
+public/data/tracts.bin   Connect: Allen connectivity-atlas tract paths
+tools/data-prep/      how every data file above was made, reproducibly
 src/content/data.js   every word and fact on the site
 src/content/render.js data -> HTML, runs in Node, no browser APIs
 src/signal/           generator (the one source), stim control, rule renderer
-src/scene/            three.js: loader, shaders, camera frames
+src/scene/            three.js: the shell, camera frames, and one view per section that
+                      has its own: vessels.js (Research), fun/ (For fun: landscape at
+                      rest, walks and seasons on hover), tracts.js (Connect, draggable)
 src/styles/           tokens, base, layout, components
 legacy/               the previous site, kept for reference only
 ```

@@ -195,10 +195,17 @@ function paper (p, hidden) {
         </li>`
 }
 
-function projectLine (p) {
+function project (p) {
   const written = (p.lang ? ` lang="${esc(p.lang)}"` : '') + (p.dir ? ` dir="${esc(p.dir)}"` : '')
-  const after = p.after ? esc(p.after) : ''
-  return `<li><span>${esc(p.kind)}</span><span><a href="${esc(p.href)}"${NEW_TAB}${written}>${esc(p.label)}</a>${after}</span></li>`
+  const about = p.about ? `\n            <p>${esc(p.about)}</p>` : ''
+  const viz = p.viz ? ` data-viz="${esc(p.viz)}"` : ''
+  return `
+        <li class="entry project"${viz}>
+          <div class="when">${esc(p.kind)}</div>
+          <div>
+            <h3><a href="${esc(p.href)}"${NEW_TAB}${written}>${esc(p.label)}</a></h3>${about}
+          </div>
+        </li>`
 }
 
 function papers (i) {
@@ -211,10 +218,21 @@ function papers (i) {
       <ul class="pubs" id="pubs" role="list">${C.papers.map((p, j) => paper(p, j >= C.papersVisible)).join('')}
       </ul>
       <button class="more" id="more-papers" aria-expanded="false" aria-controls="pubs">Show all papers</button>
-      <div class="aside">
-        <h3 class="tag tag-flush">Also, for fun</h3>
-        <ul role="list">${C.projects.map(projectLine).join('')}</ul>
-      </div>
+    </div>`
+}
+
+function fun (i) {
+  return `
+    <div class="col">
+      ${eyebrow(i)}
+      ${head(i, C.fun.heading)}
+      <ul class="entries" role="list">${C.projects.map(project).join('')}
+      </ul>
+    </div>
+    <div class="fun-caption" id="fun-caption" aria-hidden="true">
+      <span class="tag" data-kind></span>
+      <p class="about" data-about></p>
+      <p class="live" data-live></p>
     </div>`
 }
 
@@ -231,14 +249,18 @@ function contact (i) {
     </div>`
 }
 
-const BODIES = { lede, now, research, path, papers, contact }
+const BODIES = { lede, now, research, path, papers, fun, contact }
 
-/** Sections, with a live-signal rule between each pair. */
+/**
+ * Sections, with a live-signal rule between each pair up to the side projects.
+ * From there on the page is off the clock, and the signal stops.
+ */
 function allSections () {
   return C.sections
     .map((s, i) => {
       const body = BODIES[s.id](i)
-      const rule = i < C.sections.length - 1
+      const quiet = C.sections.findIndex((x) => x.id === 'fun')
+      const rule = i < (quiet < 0 ? C.sections.length : quiet) - 1
         ? `\n<canvas class="sig${i === 0 ? ' tall' : ''}" data-window="${i}" aria-hidden="true"></canvas>`
         : ''
       return `<section id="${esc(s.id)}" aria-labelledby="${esc(s.id)}-title">${body}\n  </section>${rule}`
@@ -248,7 +270,7 @@ function allSections () {
 
 function footer () {
   const year = C.credits.year
-  return `<span>${esc(C.person.name)}</span><span>${esc(C.credits.geometry)}</span><span>© <time datetime="${esc(year)}">${esc(year)}</time></span>`
+  return `<span>${esc(C.person.name)}</span><span>${esc(C.credits.geometry)}</span><span>${esc(C.credits.vessels)}</span><span>© <time datetime="${esc(year)}">${esc(year)}</time></span>`
 }
 
 /** Replaces <!--@name--> markers in index.html. */

@@ -187,16 +187,24 @@ export const papers = [
 export const papersVisible = 5
 
 /**
- * Side projects. These are hobbies and stay visually quiet: one line each,
- * no screenshots, no cards, no metrics.
+ * Side projects. These are hobbies: one line each, no screenshots, no cards,
+ * no metrics. The two with data behind them lend it to the model, and `viz`
+ * names which view of it each one shows; the first is the view at rest.
  */
 export const projects = [
-  { kind: 'Model', label: 'NextPredictor', href: 'https://nextpredictor.vercel.app', after: ', football match probabilities, logged before kickoff' },
-  { kind: 'Stats', label: 'סיכוי', lang: 'he', dir: 'rtl', href: 'https://sikui.vercel.app', after: ', every Israeli Lotto draw since 1968, tested for randomness' },
+  { kind: 'Stats', label: 'סיכוי', lang: 'he', dir: 'rtl', href: 'https://sikui.vercel.app', about: 'Every Israeli Lotto draw since 1968, tested for randomness.', viz: 'lotto' },
+  { kind: 'Model', label: 'NextPredictor', href: 'https://nextpredictor.vercel.app', about: 'Football match probabilities, logged before kickoff.', viz: 'football' },
   { kind: 'Game', label: 'Brainrot Crush', href: 'https://brainrot-crush.vercel.app' },
-  { kind: 'Tool', label: 'מחשבון קלוריות', lang: 'he', dir: 'rtl', href: 'https://calorie-calculator-heb.vercel.app', after: ', a Hebrew calorie and carb counter' },
+  { kind: 'Tool', label: 'מחשבון קלוריות', lang: 'he', dir: 'rtl', href: 'https://calorie-calculator-heb.vercel.app', about: 'A Hebrew calorie and carb counter.' },
   { kind: 'Macro', label: 'Olympus slide scans to PNG', href: 'https://github.com/swissclock/VSI-to-PNG' }
 ]
+
+// The model's data: the 1,958 draws of the current 6-of-37 format (chi-square
+// p = 0.71 against uniform), and NextPredictor's out-of-sample walk, 7,148
+// matches from July 2022 to October 2026 that played no part in tuning it.
+export const fun = {
+  heading: 'The same habit, <em>off the clock</em>'
+}
 
 export const contact = {
   heading: 'Get in touch',
@@ -216,11 +224,20 @@ export const sections = [
   { id: 'research', label: 'Research' },
   { id: 'path', label: 'Path' },
   { id: 'papers', label: 'Papers' },
-  { id: 'contact', label: 'Contact' }
+  { id: 'fun', label: 'For fun' },
+  // Connect, not Contact: the section the tracts belong to. The id stays, so
+  // links to #contact keep working.
+  { id: 'contact', label: 'Connect' }
 ]
 
 export const credits = {
-  geometry: 'Geometry: Allen Mouse Brain Common Coordinate Framework v3',
+  // The shell and every outline come from the Allen reference atlas; the tracts
+  // in the last section from its connectivity atlas.
+  geometry: 'Geometry and tracts: Allen Mouse Brain Atlas, CCF v3 and Connectivity',
+  // The research view's vasculature. CC BY-NC 4.0 requires the attribution and
+  // licence on the page itself, not just in the source. Word joiners hold the
+  // licence name together where the footer wraps on a phone.
+  vessels: 'Vessels: VesSAP, Todorov et al. 2020 · CC\u00a0BY\u2060-\u2060NC\u00a04.0',
   // Authored, not computed. The page is static and is rebuilt only when its
   // content changes, so a date read at build time would freeze at whatever year
   // the last content edit happened to fall in and then quietly go stale.

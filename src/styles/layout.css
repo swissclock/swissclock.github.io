@@ -148,6 +148,14 @@ section {
 }
 .sub b { color: var(--ink-2); font-weight: 400; }
 
+/* The last section fills the window above the footer, so scrolling to the end
+   brings it up to where every section sits when it is reached, opposite its
+   model, instead of leaving it low under the one before. main.js measures the
+   footer into --footer-h. */
+@media (min-width: 1081px) {
+  #contact { min-height: calc(100vh - var(--footer-h, 120px)); }
+}
+
 footer {
   position: relative;
   z-index: 3;
@@ -158,7 +166,6 @@ footer {
   flex-wrap: wrap;
   padding: var(--lead-in) var(--edge) var(--lead-in) var(--gutter);
   padding-bottom: calc(var(--lead-in) + env(safe-area-inset-bottom, 0px));
-  border-top: 1px solid var(--rule);
   font: 400 var(--t-label)/1.9 var(--mono);
   letter-spacing: var(--track-meta);
   text-transform: uppercase;

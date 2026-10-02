@@ -71,6 +71,7 @@ uniform float uBurst;
 uniform float uHot;
 uniform vec3  uCool;
 uniform vec3  uWarm;
+uniform float uShellFade;   // 1 everywhere but the research framing
 
 varying float vFade;
 varying float vSeed;
@@ -87,6 +88,6 @@ void main() {
   vec3 colour = mix(uCool, uWarm, clamp(vWarm * 0.85 + vNear * uHot * 0.9 + vFront * 0.22, 0.0, 1.0));
   float lum = 0.70 + vSeed * 0.26 + uBurst * 0.40 * (1.0 - uSuppression) + vNear * uHot * 0.95 + vFront * 0.2;
 
-  gl_FragColor = vec4(colour * lum, alpha * vFade * (0.84 - uSuppression * 0.20) * (1.0 + vFront * 0.18));
+  gl_FragColor = vec4(colour * lum, alpha * vFade * (0.84 - uSuppression * 0.20) * (1.0 + vFront * 0.18) * uShellFade);
 }
 `
