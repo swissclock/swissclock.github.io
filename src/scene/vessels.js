@@ -341,7 +341,31 @@ export async function loadVessels (url) {
  * shell's uniform object, so time, burst, suppression and depth all arrive
  * from the same place.
  */
-export function createVessels (data, parent, shared, { lift, spark }) {
+/**
+ * On a phone the capillary bed is drawn at a third of its density: at that
+ * size it is haze either way, and it is most of the vertices. Every larger
+ * vessel stays, since those carry the picture.
+ */
+const THIN_KEEP = 0.33
+const THIN_RADIUS = 51  // the info byte: radius steps of 17, so three and up
+
+function thin ({ positions, info }, pair) {
+  const width = pair ? 2 : 1
+  const count = positions.length / 3 / width
+  const keepP = []
+  const keepI = []
+  for (let k = 0; k < count; k++) {
+    const i = k * width
+    if (info[i * 4] < THIN_RADIUS && Math.random() > THIN_KEEP) continue
+    for (let j = i; j < i + width; j++) {
+      keepP.push(positions[j * 3], positions[j * 3 + 1], positions[j * 3 + 2])
+      keepI.push(info[j * 4], info[j * 4 + 1], info[j * 4 + 2], info[j * 4 + 3])
+    }
+  }
+  return { positions: new Float32Array(keepP), info: new Uint8Array(keepI) }
+}
+
+export function createVessels (data, parent, shared, { lift, spark, light = false }) {
   const uniforms = {
     ...shared,
     uVasc: { value: 0 },
@@ -378,8 +402,10 @@ export function createVessels (data, parent, shared, { lift, spark }) {
     return geometry
   }
 
-  group.add(new LineSegments(vesselGeometry(data.lines), material(vesselVertex, vesselFragment, { uPoint: { value: 0 } })))
-  group.add(new Points(vesselGeometry(data.points), material(vesselVertex, vesselFragment, { uPoint: { value: 1 } })))
+  const lines = light ? thin(data.lines, true) : data.lines
+  const walls = light ? thin(data.points, false) : data.points
+  group.add(new LineSegments(vesselGeometry(lines), material(vesselVertex, vesselFragment, { uPoint: { value: 0 } })))
+  group.add(new Points(vesselGeometry(walls), material(vesselVertex, vesselFragment, { uPoint: { value: 1 } })))
 
   const neuronGeometry = new BufferGeometry()
   neuronGeometry.setAttribute('position', new BufferAttribute(data.neurons, 3))

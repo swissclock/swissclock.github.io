@@ -87,7 +87,7 @@ varying float vAlpha;
 void main() { gl_FragColor = vec4(uInk, vAlpha * dot2(1.0)); }
 `
 
-export function createWalks (lotto, { shared, colours }) {
+export function createWalks (lotto, { shared, colours, light }) {
   const { pool, numbers, days } = lotto
   const draws = days.length
   const expected = 6 / pool
@@ -107,14 +107,19 @@ export function createWalks (lotto, { shared, colours }) {
   const x = (d) => LEFT + (d / (draws - 1)) * (RIGHT - LEFT)
   const y = (n, d) => TOP - (n - 1) * GAP + dev[n][d] * gain
 
-  const segments = pool * (draws - 1)
+  // A phone draws these across a few hundred pixels: every third draw still
+  // gives each trace more vertices than it has pixels to put them on.
+  const stride = light ? 3 : 1
+  const steps = []
+  for (let d = 0; d < draws - 1; d += stride) steps.push([d, Math.min(d + stride, draws - 1)])
+  const segments = pool * steps.length
   const positions = new Float32Array(segments * 6)
   const t = new Float32Array(segments * 2)
   const num = new Float32Array(segments * 2)
   let v = 0
   for (let n = 1; n <= pool; n++) {
-    for (let d = 0; d < draws - 1; d++) {
-      for (const e of [d, d + 1]) {
+    for (const step of steps) {
+      for (const e of step) {
         positions[v * 3] = x(e); positions[v * 3 + 1] = y(n, e); positions[v * 3 + 2] = PLANE
         t[v] = e / (draws - 1)
         num[v] = n

@@ -262,6 +262,7 @@
   text-align: left;
   user-select: none;
   -webkit-user-select: none;
+  -webkit-touch-callout: none;
   touch-action: none;
   font: 400 var(--t-label)/1.4 var(--mono);
   letter-spacing: var(--track-meta);
@@ -269,6 +270,9 @@
   color: var(--ink-3);
   transition: border-color var(--t-med) var(--ease), color var(--t-med) var(--ease);
 }
+/* A press lands on the button itself, never on a label inside it: on a touch
+   screen the element under the finger is the one that owns the gesture. */
+.stim > * { pointer-events: none; }
 .stim:hover,
 .stim:focus-visible { color: var(--ink-2); border-color: rgba(168, 176, 189, 0.3); }
 /* The pill has a border of its own that goes warm while lit, and a ring sitting
@@ -352,4 +356,49 @@ html.is-recovering .stim .lamp::after { background: var(--fade); opacity: 0.55; 
      of the footer sit under it at the very bottom of the document and cannot
      be scrolled clear. */
   footer { padding-bottom: calc(var(--lead-in) + 78px + env(safe-area-inset-bottom, 0px)); }
+}
+
+/* On a phone, the projects with data behind them show it by a button of
+   their own; with a pointer, hovering the row does the same. */
+.peek { display: none; }
+@media (max-width: 1080px) {
+  .peek {
+    display: inline-block;
+    margin-top: 0.7em;
+    padding: 0.55em 0.8em;
+    border: 1px solid var(--rule);
+    border-radius: 2px;
+    font: 400 var(--t-label)/1.2 var(--mono);
+    letter-spacing: var(--track-meta);
+    text-transform: uppercase;
+    background: none;
+    color: var(--ink-2);
+    -webkit-tap-highlight-color: transparent;
+  }
+  .peek[aria-pressed="true"] { color: var(--accent); border-color: currentColor; }
+}
+
+/* Mockup round only: the a / b / c chooser for the phone layouts. */
+.mock-switch { display: none; }
+@media (max-width: 1080px) {
+  .mock-switch {
+    position: fixed;
+    right: 0;
+    top: 42%;
+    z-index: 6;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .mock-switch a {
+    display: grid;
+    place-items: center;
+    width: 26px; height: 30px;
+    border: 1px solid var(--rule);
+    background: rgba(13, 17, 22, 0.72);
+    font: 400 var(--t-label)/1 var(--mono);
+    text-transform: uppercase;
+    color: var(--ink-3);
+  }
+  .mock-switch a.on { color: var(--ink); border-color: var(--ink-3); }
 }

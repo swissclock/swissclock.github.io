@@ -47,11 +47,16 @@ let scene = {
 }
 
 import('./scene/index.js').then(({ createScene }) => {
-  scene = createScene({ canvas, cool: COLOURS.resting, warm: COLOURS.lit, cord: token('--cord'), ink: token('--ink'), dim: token('--ink-4'), label: token('--ink-3'), ground: token('--bg'), onFit: placeCaption })
+  scene = createScene({ canvas, cool: COLOURS.resting, warm: COLOURS.lit, cord: token('--cord'), ink: token('--ink'), dim: token('--ink-4'), label: token('--ink-3'), ground: token('--bg'), onFit: placeCaption, light: matchMedia('(hover: none) and (pointer: coarse)').matches })
   // Replay the viewport and the section the reader is already on; a scene that
-  // starts at frame 0 with a square aspect would visibly snap into place.
+  // starts at frame 0 with a square aspect would visibly snap into place. On a
+  // phone that is the block the canvas already stands in.
   sizeScene()
-  scene.setFrame(active)
+  if (phone.matches && host) {
+    const fig = host
+    host = null
+    hostFig(fig)
+  } else scene.setFrame(active)
   scene.setView(shownViz)
   measureFun()
 })
@@ -113,64 +118,98 @@ function trackSection () {
     if (i === active) link.setAttribute('aria-current', 'true')
     else link.removeAttribute('aria-current')
   })
-  scene.setFrame(active)
+  if (!phone.matches) scene.setFrame(active)
   syncCaption()
 }
 
 addEventListener('scroll', trackSection, { passive: true })
 
-/* --- the model's presence on a phone ------------------------------------- */
+/* --- the model's place on a phone --------------------------------------- */
 
 /**
- * Held upright on a narrow screen, the model has the lower part of the first
- * screen to itself and the stylesheet shows it at whatever --gl-presence says:
- * full at the top of the page, and settled to a quiet trace by the time the
- * reader has scrolled a third of a screen and content is arriving over it. On
- * a wide screen the stylesheet never reads the property, so this is inert.
- *
- * Rounded to hundredths so a long scroll writes the property eighty times at
- * most rather than once per event.
+ * Below the layout change there is no side for the model to stand on, so each
+ * section with a view has a block of its own (.fig) and the one canvas moves
+ * into whichever block is coming on screen. Moving the element keeps its GL
+ * context, and inside a block it scrolls with the page natively. The framing
+ * follows the block rather than the section the reader is in, and nothing is
+ * drawn while no block is on screen: on a phone that is most of the page.
  */
-const PRESENCE_FLOOR = 0.2
-const PRESENCE_SPAN = 0.35   // of a viewport height
-let presence = -1
-let viewportHeight = innerHeight
+const phone = matchMedia('(max-width: 1080px)')
+const figs = [...document.querySelectorAll('.fig')]
+const canvasHome = { parent: canvas.parentNode, next: canvas.nextSibling }
+const nearness = new Map()
+const visible = new Set()
+let host = null
 
-function updatePresence () {
-  const t = Math.min(1, Math.max(0, scrollY / (viewportHeight * PRESENCE_SPAN)))
-  const next = Math.round((1 - t * (1 - PRESENCE_FLOOR)) * 100) / 100
-  if (next === presence) return
-  presence = next
-  document.documentElement.style.setProperty('--gl-presence', String(next))
-}
-
-addEventListener('scroll', updatePresence, { passive: true })
-updatePresence()
+/** Mockup round: which of the three layouts this page is showing. */
+const variant = (document.documentElement.className.match(/\bm-([abc])\b/) || [])[1] || 'a'
 
 /**
- * Where the band begins: just under the last line of the lede, measured at the
- * top of the page. On a very short screen that would leave the model too little
- * room to read as a brain, so the band keeps at least MIN_BAND of height and
- * accepts running under the lede's last line, where the stylesheet's fade at
- * the top of the band keeps the two apart. A layout read, but only on resize
- * and once the fonts land, never in the frame loop.
+ * How each layout wants the view placed in its block, as a vertical shift of
+ * the image in normalised coordinates: an opener keeps its heading's room
+ * clear at the foot of the block.
  */
-const MIN_BAND = 240
-const ledeText = document.querySelector('#lede .col')
+const LENS = { a: 0, b: 0.3, c: 0 }
 
-function placeBand () {
-  if (!ledeText) return
-  const textBottom = ledeText.getBoundingClientRect().bottom + scrollY
-  const top = Math.round(Math.max(0, Math.min(textBottom + 8, innerHeight - MIN_BAND)))
-  const rootStyle = document.documentElement.style
-  rootStyle.setProperty('--band-top', `${top}px`)
-  rootStyle.setProperty('--band-h', `${Math.max(MIN_BAND, innerHeight - top)}px`)
+function hostFig (fig) {
+  if (fig === host) return
+  host = fig
+  fig.prepend(canvas)
+  hostNote = fig.querySelector('.fig-note')
+  scene.setLens?.({ shift: Number(fig.dataset.frame) === FUN ? 0 : LENS[variant], phone: true })
+  scene.setFrame(Number(fig.dataset.frame))
+  measureFun()
 }
 
-placeBand()
-// The display face is taller than its fallback, so the lede's height is only
-// final once it has loaded.
-document.fonts?.ready.then(() => { placeBand(); measureFun() })
+function pickFig () {
+  if (!phone.matches) return
+  let best = null
+  let bestRatio = 0
+  for (const fig of figs) {
+    const ratio = nearness.get(fig) || 0
+    if (ratio > bestRatio) { best = fig; bestRatio = ratio }
+  }
+  if (best) hostFig(best)
+}
+
+// Chosen a little ahead, over a margin below the screen, so the framing has
+// settled by the time the block scrolls into view…
+const ahead = new IntersectionObserver((entries) => {
+  for (const entry of entries) nearness.set(entry.target, entry.isIntersecting ? entry.intersectionRatio || 0.001 : 0)
+  pickFig()
+}, { rootMargin: '0px 0px 60% 0px', threshold: [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1] })
+// …and drawn only while it is actually on screen.
+const seen = new IntersectionObserver((entries) => {
+  for (const entry of entries) {
+    if (entry.isIntersecting) visible.add(entry.target)
+    else visible.delete(entry.target)
+  }
+})
+for (const fig of figs) { ahead.observe(fig); seen.observe(fig) }
+
+phone.addEventListener('change', () => {
+  if (phone.matches) {
+    host = null
+    pickFig()
+    return
+  }
+  canvasHome.parent.insertBefore(canvas, canvasHome.next)
+  host = null
+  scene.setLens?.({ shift: 0 })
+  scene.setFrame(active)
+  measureFun()
+})
+
+let hostNote = null
+
+// Mockup round only: the chooser between the three phone layouts.
+{
+  const chooser = document.createElement('nav')
+  chooser.className = 'mock-switch'
+  chooser.setAttribute('aria-label', 'Mockup layouts')
+  chooser.innerHTML = ['a', 'b', 'c'].map((m) => `<a href="?m=${m}"${m === variant ? ' class="on"' : ''}>${m}</a>`).join('')
+  document.body.append(chooser)
+}
 
 addEventListener('pointermove', (event) => {
   scene.setPointer((event.clientX / innerWidth - 0.5) * 2, (event.clientY / innerHeight - 0.5) * 2)
@@ -200,11 +239,8 @@ const footer = document.querySelector('footer')
 
 function resize () {
   if (footer) document.documentElement.style.setProperty('--footer-h', `${Math.ceil(footer.getBoundingClientRect().height)}px`)
-  // iOS changes the viewport height as its toolbars come and go, and that
-  // moves where "a third of a screen" falls.
-  viewportHeight = innerHeight
-  updatePresence()
-  placeBand()
+  const rail = document.querySelector('.rail')
+  if (rail) document.documentElement.style.setProperty('--bar-h', `${Math.ceil(rail.getBoundingClientRect().height)}px`)
   measureFun()
   rules.resize()
   trackSection()
@@ -276,22 +312,41 @@ function syncCaption () {
   document.documentElement.classList.toggle('caption-on', Boolean(pointedRow) && active === FUN)
 }
 
+// Pointing is for a mouse; a finger's taps fire the same enter and leave, and
+// would bring a view up only to drop it again as the finger lifts.
 for (const row of projectRows) {
-  row.addEventListener('pointerenter', () => point(row))
-  row.addEventListener('pointerleave', () => point(null))
-  row.addEventListener('focusin', () => point(row))
-  row.addEventListener('focusout', () => point(null))
+  row.addEventListener('pointerenter', (event) => { if (event.pointerType !== 'touch') point(row) })
+  row.addEventListener('pointerleave', (event) => { if (event.pointerType !== 'touch') point(null) })
+  row.addEventListener('focusin', () => { if (!phone.matches) point(row) })
+  row.addEventListener('focusout', () => { if (!phone.matches) point(null) })
 }
 showViz(null)
 
-if (vizRows.length && matchMedia('(hover: none)').matches) {
-  const turns = [null, ...vizRows.map((row) => row.dataset.viz)]
-  let turn = 0
-  setInterval(() => {
-    if (active !== FUN || document.hidden) return
-    turn = (turn + 1) % turns.length
-    showViz(turns[turn])
-  }, 8000)
+/**
+ * On a phone there is no pointing, so a project with data behind it carries a
+ * button that brings its view up in the section's block, and its title stays
+ * the link it always was. Tapping it again, or another, puts the view back.
+ */
+let picked = null
+const peeks = vizRows.map((row) => {
+  const button = document.createElement('button')
+  button.type = 'button'
+  button.className = 'peek'
+  button.setAttribute('aria-pressed', 'false')
+  button.textContent = 'Show the data'
+  button.addEventListener('click', () => pick(picked === row ? null : row))
+  row.querySelector('h3').after(button)
+  return button
+})
+
+function pick (row) {
+  picked = row
+  showViz(row?.dataset.viz ?? null)
+  shownLive = null
+  vizRows.forEach((r, i) => {
+    peeks[i].setAttribute('aria-pressed', String(r === row))
+    peeks[i].textContent = r === row ? 'Showing, above' : 'Show the data'
+  })
 }
 
 /**
@@ -302,13 +357,16 @@ if (vizRows.length && matchMedia('(hover: none)').matches) {
  * and once the fonts have landed.
  */
 const funSection = document.getElementById('fun')
+// The section's last row only finds its height once the display face is in.
+document.fonts?.ready.then(() => measureFun())
 
 function measureFun () {
   if (!funSection || !projectRows.length) return
-  // Below the layout change the model sits behind the text rather than beside
-  // it, and the views keep a plain upper-middle band of the canvas.
-  if (innerWidth <= 1080) {
-    scene.setFitBox?.({ top: 0.55, bottom: -0.35 })
+  // On a phone the views fill their own block, inside a margin, and leave
+  // the foot of an opener to its heading.
+  if (phone.matches) {
+    const foot = variant === 'b' ? -0.05 : -0.74
+    scene.setFitBox?.({ top: 0.7, bottom: foot, left: -0.84, right: 0.84 })
     return
   }
   const origin = funSection.getBoundingClientRect().top
@@ -332,6 +390,9 @@ const CONTACT = sections.findIndex((section) => section.id === 'contact')
 let dragging = null
 
 function overModel (event) {
+  // On a phone the model has its own block, so a finger can turn it there:
+  // the block takes sideways moves and leaves upright ones to the page.
+  if (phone.matches) return Number(host?.dataset.frame) === CONTACT && Boolean(host?.contains(event.target))
   if (active !== CONTACT || event.pointerType === 'touch') return false
   if (event.target.closest?.('a, button, input, textarea, label, .col, footer')) return false
   const box = canvas.getBoundingClientRect()
@@ -422,16 +483,24 @@ function tick (now) {
   frameState.lit = stim.held
 
   scene.update(dt, frameState)
-  scene.render()
-  if (pointedRow?.dataset.viz && active === FUN) {
+  // On a phone the canvas is only ever inside a block, so with its block off
+  // screen there is nothing to draw.
+  if (!phone.matches || visible.has(host)) scene.render()
+  // What the project's view shows right now: in the caption beside it, or on
+  // a phone at the head of its block.
+  const onPhone = phone.matches
+  const liveLine = onPhone ? (Number(host?.dataset.frame) === FUN ? hostNote : null) : captionLive
+  const describing = onPhone ? Boolean(picked) : Boolean(pointedRow?.dataset.viz) && active === FUN
+  if (describing && liveLine) {
     const live = scene.live ?? ''
     if (live !== shownLive) {
       shownLive = live
-      captionLive.textContent = live
+      liveLine.textContent = live
     }
   } else if (shownLive !== '') {
     shownLive = ''
     if (captionLive) captionLive.textContent = ''
+    if (hostNote) hostNote.textContent = ''
   }
   rules.draw(signal, COLOURS[stim.state], RULE)
 }

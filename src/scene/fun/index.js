@@ -41,8 +41,8 @@ function screenBox (points, project) {
   return { x0, x1, y0, y1 }
 }
 
-export function createFun (data, parent, shared, shell, colours) {
-  const context = { shared, shell, colours }
+export function createFun (data, parent, shared, shell, colours, { light = false } = {}) {
+  const context = { shared, shell, colours, light }
   const group = new Group()
   parent.add(group)
 
@@ -75,21 +75,35 @@ export function createFun (data, parent, shared, shell, colours) {
      * where each project's view ended up on screen (the same box for all of
      * them), so the caption can sit right under it.
      */
-    fit (project, { top, bottom }) {
+    fit (project, { top, bottom, left, right }) {
       // The landscape keeps its size and only steps up or down to stand on
       // the last project, like everything else here.
       const floor = corners(landscape.bounds)
       landscape.group.position.set(0, 0, 0)
+      // On a phone it is also brought inside the block's width, near edge
+      // and all, rather than running off both sides.
+      let size = 1
+      if (left !== undefined) {
+        for (let pass = 0; pass < 3; pass++) {
+          const box = screenBox(floor.map((c) => c.clone().multiplyScalar(size)), project)
+          size *= Math.min(1, (right - left) * 1.08 / (box.x1 - box.x0))
+        }
+      }
+      landscape.group.scale.setScalar(size)
+      for (const c of floor) c.multiplyScalar(size)
       const ground = screenBox(floor, project)
-      const probe = new Vector3(0, landscape.bounds.min.y, landscape.bounds.max.z)
+      const probe = new Vector3(0, landscape.bounds.min.y, landscape.bounds.max.z).multiplyScalar(size)
       const rise = project(probe.clone().add(new Vector3(0, 1, 0))).y - project(probe).y
       landscape.group.position.y = (bottom - ground.y0) / rise
       const lifted = screenBox(floor.map((c) => c.clone().add(landscape.group.position)), project)
 
       // Its near edge spreads wide in perspective, and its left end runs under
       // the reading column's veil: the views take the clear part of that width.
+      // A phone has no veil and gives its own margins instead.
       const span = lifted.x1 - lifted.x0
-      const reach = { x0: lifted.x0 + span * 0.18, x1: Math.min(lifted.x1 - span * 0.04, 0.9) }
+      const reach = left === undefined
+        ? { x0: lifted.x0 + span * 0.18, x1: Math.min(lifted.x1 - span * 0.04, 0.9) }
+        : { x0: left, x1: right }
       // Every view fills the same box, so its caption lands in the same place
       // whichever project is pointed at. Width and height scale separately to
       // do it; the text labels are counter-scaled so they never stretch.

@@ -23,6 +23,8 @@ const DECAY_GAIN = 0.055  // extra decay proportional to remaining suppression
 const MIN_PULSE = 0.14    // seconds; a tap too quick to see still delivers light
 const CLICK_PULSE = 0.5   // seconds; a single activation with no press to hold
 const RUNAWAY = 60        // seconds; last-resort net if a release never arrives
+const LONG_PRESS = 220    // ms a finger must rest on the model before it is a hold
+const DRIFT = 10          // px it may wander meanwhile and still be one
 
 const EDITABLE = /^(input|textarea|select)$/i
 /** Roles for which Space is already an activation, and so is not ours to take. */
@@ -104,9 +106,19 @@ export class Stim extends EventTarget {
       this.end()
     }
 
+    // A touch screen captures the finger to whatever lies under it, which on
+    // the control is one of its labels. Taking the capture for the button
+    // makes that label lose it, and lostpointercapture bubbles: heard here, it
+    // ended every hold on an iPhone the moment it began. Only the element this
+    // press actually captured can lose it.
+    const lost = (event) => {
+      if (event.target !== this.capturing) return
+      up(event)
+    }
+
     if (button) {
       button.addEventListener('pointerdown', (e) => down(e, button))
-      button.addEventListener('lostpointercapture', up)
+      button.addEventListener('lostpointercapture', lost)
       // A long press on the control is the interaction, not a request for a menu.
       button.addEventListener('contextmenu', (e) => e.preventDefault())
 
@@ -139,10 +151,37 @@ export class Stim extends EventTarget {
       })
     }
 
-    if (canvas) {
-      canvas.addEventListener('pointerdown', (e) => down(e, canvas))
-      canvas.addEventListener('lostpointercapture', up)
+    // On the model a finger is as likely to be starting a scroll as a hold,
+    // and a scroll would otherwise flash the light every time it began there.
+    // So a touch only becomes a hold once it has stayed put for a moment.
+    let waiting = null
+    const settle = () => {
+      if (!waiting) return
+      clearTimeout(waiting.timer)
+      waiting = null
     }
+    const press = (event) => {
+      if (event.pointerType !== 'touch') return down(event, canvas)
+      if (event.isPrimary === false) return
+      settle()
+      waiting = {
+        id: event.pointerId,
+        x: event.clientX,
+        y: event.clientY,
+        timer: setTimeout(() => { waiting = null; down(event, canvas) }, LONG_PRESS)
+      }
+    }
+
+    if (canvas) {
+      canvas.addEventListener('pointerdown', press)
+      canvas.addEventListener('lostpointercapture', lost)
+      canvas.addEventListener('pointermove', (e) => {
+        if (waiting && e.pointerId === waiting.id && Math.hypot(e.clientX - waiting.x, e.clientY - waiting.y) > DRIFT) settle()
+      })
+      canvas.addEventListener('contextmenu', (e) => e.preventDefault())
+    }
+    addEventListener('pointerup', settle)
+    addEventListener('pointercancel', settle)
 
     addEventListener('pointerup', up)
     addEventListener('pointercancel', up)

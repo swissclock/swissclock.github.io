@@ -24,7 +24,7 @@ import {
 ColorManagement.enabled = false
 
 import { pointVertex, pointFragment } from './shaders.js'
-import { frames } from './frames.js'
+import { frames as wideFrames, phoneFrames } from './frames.js'
 import { loadVessels, createVessels, SPOT } from './vessels.js'
 import { loadFun, createFun } from './fun/index.js'
 import { loadTracts, createTracts } from './tracts.js'
@@ -189,7 +189,7 @@ function createRenderer (canvas) {
  * out of tokens.css by main.js: the palette is authored there and nowhere else.
  * `onFit` hears where the side-projects views were placed on the canvas.
  */
-export function createScene ({ canvas, cool, warm, cord, ink, dim, label, ground, onFit }) {
+export function createScene ({ canvas, cool, warm, cord, ink, dim, label, ground, onFit, light = false }) {
   const COOL = new Color(cool)
   const WARM = new Color(warm)
   const CORD = new Color(cord)
@@ -202,14 +202,16 @@ export function createScene ({ canvas, cool, warm, cord, ink, dim, label, ground
     canvas.classList.add('is-inert')
     return inertScene()
   }
-  renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 2))
+  // A phone's screen is dense enough that every point drawn at its full pixel
+  // ratio is mostly fill the eye cannot resolve.
+  renderer.setPixelRatio(Math.min(devicePixelRatio || 1, light ? 1.6 : 2))
 
   const stillness = matchMedia('(prefers-reduced-motion: reduce)')
   let reduced = stillness.matches
 
   const scene = new Scene()
   const camera = new PerspectiveCamera(BASE_FOV, 1, 0.1, 200)
-  camera.position.copy(frames[0].position)
+  camera.position.copy(wideFrames[0].position)
 
   const brain = new Group()
   scene.add(brain)
@@ -221,7 +223,7 @@ export function createScene ({ canvas, cool, warm, cord, ink, dim, label, ground
     uSuppression: { value: 0 },
     uBurst: { value: 0 },
     uPixelRatio: { value: renderer.getPixelRatio() },
-    uDepthRef: { value: frames[0].position.distanceTo(frames[0].target) },
+    uDepthRef: { value: wideFrames[0].position.distanceTo(wideFrames[0].target) },
     uFocus: { value: TIP.clone() },
     uCool: { value: COOL.clone() },
     uWarm: { value: WARM.clone() },
@@ -267,10 +269,14 @@ export function createScene ({ canvas, cool, warm, cord, ink, dim, label, ground
   tip.position.copy(TIP)
   brain.add(tip)
 
-  brain.rotation.set(0.06, frames[0].spin, 0)
+  brain.rotation.set(0.06, wideFrames[0].spin, 0)
 
   // --- state ------------------------------------------------------------
+  /** The framings in use: the wide ones, or a phone's (see setLens). */
+  let frames = wideFrames
   let frame = 0
+  /** Vertical shift of the image, in normalised coordinates (see setLens). */
+  let lensShift = 0
   let hotMix = frames[0].hot
   const pointer = { x: 0, y: 0 }
   const smoothed = { x: 0, y: 0 }
@@ -345,7 +351,7 @@ export function createScene ({ canvas, cool, warm, cord, ink, dim, label, ground
     loadFun('/data/fun.json').then((data) => {
       fun = createFun(data, brain, shared, shellPositions, {
         ink: new Color(ink), dim: new Color(dim), warm: WARM.clone(), inkCss: ink, labelCss: label, ground: ground
-      })
+      }, { light })
       fun.setView(funView)
       fitFun()
     }).catch((error) => console.warn(`Side-project data unavailable: ${error.message}`))
@@ -372,8 +378,16 @@ export function createScene ({ canvas, cool, warm, cord, ink, dim, label, ground
     if (vesselsRequested || !materials.length) return
     vesselsRequested = true
     loadVessels('/data/vessels.bin').then((data) => {
-      vessels = createVessels(data, brain, shared, { lift: new Color(ink), spark: new Color(ink) })
+      vessels = createVessels(data, brain, shared, { lift: new Color(ink), spark: new Color(ink), light })
     }).catch((error) => console.warn(`Vessel geometry unavailable: ${error.message}`))
+  }
+
+  function project () {
+    camera.updateProjectionMatrix()
+    // The principal point's offset lives in the third column; a positive
+    // shift there moves the whole image down, so this moves it up.
+    camera.projectionMatrix.elements[9] -= lensShift
+    camera.projectionMatrixInverse.copy(camera.projectionMatrix).invert()
   }
 
   return {
@@ -426,8 +440,21 @@ export function createScene ({ canvas, cool, warm, cord, ink, dim, label, ground
       // a narrow window shows more sky rather than less brain.
       const widen = aspect < REFERENCE_ASPECT ? REFERENCE_ASPECT / aspect : 1
       camera.fov = 2 * Math.atan(Math.tan((BASE_FOV * Math.PI) / 360) * widen) * (180 / Math.PI)
-      camera.updateProjectionMatrix()
+      project()
       shared.uPixelRatio.value = renderer.getPixelRatio()
+      fitFun()
+    },
+
+    /**
+     * Moves the image up by `shift` (normalised device units) without turning
+     * the camera, the way a shifted lens does: on a phone an opener keeps the
+     * foot of its block for the heading set over it.
+     */
+    setLens ({ shift = 0, phone = false } = {}) {
+      frames = phone ? phoneFrames : wideFrames
+      if (shift === lensShift) { fitFun(); return }
+      lensShift = shift
+      project()
       fitFun()
     },
 

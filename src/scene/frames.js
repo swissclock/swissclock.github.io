@@ -37,3 +37,24 @@ export const frames = [
   // 07 Contact — centred, facing away
   { position: new Vector3(-0.81, 1.06, 30.39), target: new Vector3(-0.81, -0.2, 0.45), spin: -2.3, hot: 0.3 }
 ]
+
+/**
+ * The same framings for a phone, where each view has a block of its own that
+ * is the full width of the screen: centred rather than kept clear of a
+ * reading column, and pulled back or brought in to fill that width. `pull`
+ * scales the camera's distance; `aim` moves the target, in model mm, and
+ * the camera with it.
+ */
+const PHONE = {
+  1: { pull: 1.3, aim: [-2.4, 0.3, 0] },
+  2: { pull: 0.82, aim: [0, 0.3, 0] },
+  6: { pull: 0.95, aim: [0, 0, 0] }
+}
+
+export const phoneFrames = frames.map((f, i) => {
+  const p = PHONE[i]
+  if (!p) return f
+  const target = f.target.clone().add(new Vector3(...p.aim))
+  const position = f.position.clone().sub(f.target).multiplyScalar(p.pull).add(target)
+  return { ...f, position, target }
+})
