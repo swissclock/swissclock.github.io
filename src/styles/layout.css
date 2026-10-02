@@ -161,7 +161,7 @@ footer {
   z-index: 3;
   margin-left: var(--rail-w);
   display: flex;
-  justify-content: space-between;
+  align-items: flex-start;
   gap: 0.8em 2.5em;
   flex-wrap: wrap;
   padding: var(--lead-in) var(--edge) var(--lead-in) var(--gutter);
@@ -170,6 +170,38 @@ footer {
   letter-spacing: var(--track-meta);
   text-transform: uppercase;
   color: var(--ink-3);
+}
+footer .sign {
+  display: flex;
+  gap: 0.8em 2.5em;
+  margin-right: auto;
+}
+footer .credits {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.8em 5.5em;
+  min-width: 0;
+}
+/* Wide enough for one row, and the name, the geometry and the vessels share
+   out the room evenly instead of leaving it all after the year. The row also
+   stops as far short of the light control as it starts past the rail's
+   readout, so it sits between the two corner instruments with equal air at
+   either end. main.js measures that air into --foot-air. */
+@media (min-width: 1720px) {
+  footer {
+    justify-content: space-between;
+    --corner-air: var(--foot-air, 64px);
+  }
+  footer .sign { margin-right: 0; }
+  footer .credits { display: contents; }
+}
+/* The light control is fixed in the corner and the footer scrolls up under
+   it, so the footer keeps that corner's width clear: the control, its offset
+   from the edge, and a little air. main.js measures the control into
+   --stim-w. On a phone the control clears the footer from below instead. */
+@media (min-width: 1081px) {
+  footer { padding-right: calc(clamp(18px, 3vw, 40px) + var(--stim-w, 170px) + var(--corner-air, 0.5em)); }
 }
 
 /* --- the rail becomes a top bar --------------------------------------- */
@@ -222,6 +254,7 @@ footer {
   main, footer { margin-left: 0; }
   .col,
   footer { padding-left: var(--edge); }
+  footer .credits { justify-content: flex-start; }
 
   /* The veil kept the reading column clear of a model beside it. Here the
      model is never behind the text: it has blocks of its own (.fig below). */

@@ -8,3 +8,9 @@ dist/
 tools/data-prep/work/
 mockups/
 tools/verify/out/
+
+# The working spec is kept locally, not published with the site
+SPEC.md
+# The previous site and working notes, kept locally only
+legacy/
+docs/

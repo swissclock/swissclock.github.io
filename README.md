@@ -15,7 +15,4 @@ npm run preview
 ```
 
 All content lives in `src/content/data.js` and is rendered into the HTML at build
-time, so the page reads fine without JavaScript. See [SPEC.md](SPEC.md) for the
-design and content rules.
-
-The previous version of the site is kept in `legacy/`.
+time, so the page reads fine without JavaScript.

@@ -220,6 +220,12 @@ new ResizeObserver(([entry]) => {
 const footer = document.querySelector('footer')
 
 function resize () {
+  document.documentElement.style.setProperty('--stim-w', `${stimButton.getBoundingClientRect().width}px`)
+  // How far the footer's first line starts past the rail's readout, which the
+  // footer repeats before the light control on a wide screen.
+  const readout = document.querySelector('.rail .meter')
+  const first = footer?.querySelector('.sign')
+  if (readout && first) document.documentElement.style.setProperty('--foot-air', `${Math.max(0, first.getBoundingClientRect().left - readout.getBoundingClientRect().right)}px`)
   if (footer) document.documentElement.style.setProperty('--footer-h', `${Math.ceil(footer.getBoundingClientRect().height)}px`)
   const rail = document.querySelector('.rail')
   if (rail) document.documentElement.style.setProperty('--bar-h', `${Math.ceil(rail.getBoundingClientRect().height)}px`)

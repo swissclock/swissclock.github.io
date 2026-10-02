@@ -283,7 +283,9 @@ function allSections () {
 
 function footer () {
   const year = C.credits.year
-  return `<span>${esc(C.person.name)}</span><span>${esc(C.credits.geometry)}</span><span>${esc(C.credits.vessels)}</span><span>© <time datetime="${esc(year)}">${esc(year)}</time></span>`
+  // The year stands with the name, and the two data credits as a pair at the
+  // other end, which stops short of the light control in the corner.
+  return `<span class="sign"><span>${esc(C.person.name)}</span><span>© <time datetime="${esc(year)}">${esc(year)}</time></span></span><span class="credits"><span>${esc(C.credits.geometry)}</span><span>${esc(C.credits.vessels)}</span></span>`
 }
 
 /** Replaces <!--@name--> markers in index.html. */
