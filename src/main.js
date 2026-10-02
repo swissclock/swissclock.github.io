@@ -128,7 +128,7 @@ addEventListener('scroll', trackSection, { passive: true })
 
 /**
  * Below the layout change there is no side for the model to stand on, so each
- * section with a view has a block of its own (.fig) and the one canvas moves
+ * section with a view has a stage of its own (.fig) and the one canvas moves
  * into whichever block is coming on screen. Moving the element keeps its GL
  * context, and inside a block it scrolls with the page natively. The framing
  * follows the block rather than the section the reader is in, and nothing is
@@ -141,22 +141,12 @@ const nearness = new Map()
 const visible = new Set()
 let host = null
 
-/** Mockup round: which of the three layouts this page is showing. */
-const variant = (document.documentElement.className.match(/\bm-([abc])\b/) || [])[1] || 'a'
-
-/**
- * How each layout wants the view placed in its block, as a vertical shift of
- * the image in normalised coordinates: an opener keeps its heading's room
- * clear at the foot of the block.
- */
-const LENS = { a: 0, b: 0.3, c: 0 }
-
 function hostFig (fig) {
   if (fig === host) return
   host = fig
   fig.prepend(canvas)
   hostNote = fig.querySelector('.fig-note')
-  scene.setLens?.({ shift: Number(fig.dataset.frame) === FUN ? 0 : LENS[variant], phone: true })
+  scene.setPhone?.(true)
   scene.setFrame(Number(fig.dataset.frame))
   measureFun()
 }
@@ -195,21 +185,13 @@ phone.addEventListener('change', () => {
   }
   canvasHome.parent.insertBefore(canvas, canvasHome.next)
   host = null
-  scene.setLens?.({ shift: 0 })
+  read(null)
+  scene.setPhone?.(false)
   scene.setFrame(active)
   measureFun()
 })
 
 let hostNote = null
-
-// Mockup round only: the chooser between the three phone layouts.
-{
-  const chooser = document.createElement('nav')
-  chooser.className = 'mock-switch'
-  chooser.setAttribute('aria-label', 'Mockup layouts')
-  chooser.innerHTML = ['a', 'b', 'c'].map((m) => `<a href="?m=${m}"${m === variant ? ' class="on"' : ''}>${m}</a>`).join('')
-  document.body.append(chooser)
-}
 
 addEventListener('pointermove', (event) => {
   scene.setPointer((event.clientX / innerWidth - 0.5) * 2, (event.clientY / innerHeight - 0.5) * 2)
@@ -242,6 +224,7 @@ function resize () {
   const rail = document.querySelector('.rail')
   if (rail) document.documentElement.style.setProperty('--bar-h', `${Math.ceil(rail.getBoundingClientRect().height)}px`)
   measureFun()
+  watchReading()
   rules.resize()
   trackSection()
 }
@@ -253,9 +236,8 @@ addEventListener('orientationchange', resize)
 /**
  * At rest the section's model is its general view. Pointing at a project, or
  * tabbing to its link, puts that project's description in the caption under
- * the model, and the two with data behind them bring up their own views. With
- * no hover to point with, the view takes turns on its own while the section is
- * on screen, so a phone still sees both.
+ * the model, and the two with data behind them bring up their own views. A
+ * phone has no pointing, and reads the list as it scrolls instead (below).
  */
 const projectRows = [...document.querySelectorAll('.project')]
 const vizRows = projectRows.filter((row) => row.dataset.viz)
@@ -323,30 +305,41 @@ for (const row of projectRows) {
 showViz(null)
 
 /**
- * On a phone there is no pointing, so a project with data behind it carries a
- * button that brings its view up in the section's block, and its title stays
- * the link it always was. Tapping it again, or another, puts the view back.
+ * On a phone there is no pointing, but the section's stage holds at the top
+ * of the screen while its list scrolls up beneath it. So the row passing just
+ * under the stage is the one being read, and the stage shows its view: a
+ * project with data brings its own up, any other puts the landscape back. In
+ * the gaps between rows the last one read keeps the stage, and above the
+ * first, while the heading is still being read, the landscape has it.
  */
-let picked = null
-const peeks = vizRows.map((row) => {
-  const button = document.createElement('button')
-  button.type = 'button'
-  button.className = 'peek'
-  button.setAttribute('aria-pressed', 'false')
-  button.textContent = 'Show the data'
-  button.addEventListener('click', () => pick(picked === row ? null : row))
-  row.querySelector('h3').after(button)
-  return button
-})
+let reading = null
+let readingWatch = null
 
-function pick (row) {
-  picked = row
-  showViz(row?.dataset.viz ?? null)
+function read (row) {
+  if (row === reading) return
+  reading = row
   shownLive = null
-  vizRows.forEach((r, i) => {
-    peeks[i].setAttribute('aria-pressed', String(r === row))
-    peeks[i].textContent = r === row ? 'Showing, above' : 'Show the data'
-  })
+  showViz(row?.dataset.viz ?? null)
+}
+
+/**
+ * The reading line, a pixel tall, a little below the stage's foot. Its place
+ * depends on the bar and the screen's height, so it is drawn again on resize.
+ */
+function watchReading () {
+  readingWatch?.disconnect()
+  if (!phone.matches || !projectRows.length) return
+  const rail = document.querySelector('.rail')
+  const stage = funSection?.querySelector('.fig')
+  const foot = (rail?.getBoundingClientRect().height ?? 0) + (stage?.getBoundingClientRect().height ?? 0) + 16
+  const line = Math.min(innerHeight - 2, Math.round(foot))
+  readingWatch = new IntersectionObserver((entries) => {
+    for (const entry of entries) {
+      if (entry.isIntersecting) read(entry.target)
+      else if (entry.target === projectRows[0] && entry.boundingClientRect.top > line) read(null)
+    }
+  }, { rootMargin: `${-line}px 0px ${-(innerHeight - line - 1)}px 0px` })
+  for (const row of projectRows) readingWatch.observe(row)
 }
 
 /**
@@ -362,11 +355,9 @@ document.fonts?.ready.then(() => measureFun())
 
 function measureFun () {
   if (!funSection || !projectRows.length) return
-  // On a phone the views fill their own block, inside a margin, and leave
-  // the foot of an opener to its heading.
+  // On a phone the views fill their own stage, inside a margin.
   if (phone.matches) {
-    const foot = variant === 'b' ? -0.05 : -0.74
-    scene.setFitBox?.({ top: 0.7, bottom: foot, left: -0.84, right: 0.84 })
+    scene.setFitBox?.({ top: 0.7, bottom: -0.74, left: -0.84, right: 0.84 })
     return
   }
   const origin = funSection.getBoundingClientRect().top
@@ -490,7 +481,7 @@ function tick (now) {
   // a phone at the head of its block.
   const onPhone = phone.matches
   const liveLine = onPhone ? (Number(host?.dataset.frame) === FUN ? hostNote : null) : captionLive
-  const describing = onPhone ? Boolean(picked) : Boolean(pointedRow?.dataset.viz) && active === FUN
+  const describing = onPhone ? Boolean(reading?.dataset.viz) : Boolean(pointedRow?.dataset.viz) && active === FUN
   if (describing && liveLine) {
     const live = scene.live ?? ''
     if (live !== shownLive) {

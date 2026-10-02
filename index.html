@@ -47,14 +47,6 @@
       #more-papers { display: none; }
     </style>
   </noscript>
-  <!-- Mockup round only: ?m=a|b|c picks the phone layout, and is remembered. -->
-  <script>
-    (function () {
-      var m = (location.search.match(/[?&]m=([abc])/) || [])[1]
-      try { if (m) localStorage.setItem('mobile-mockup', m); else m = localStorage.getItem('mobile-mockup') } catch (e) {}
-      document.documentElement.classList.add('m-' + (m || 'a'))
-    })()
-  </script>
 </head>
 <body>
   <a class="skip" href="#main">Skip to content</a>

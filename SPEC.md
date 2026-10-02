@@ -26,7 +26,9 @@ These came directly from Evyatar and are not open to reinterpretation.
 - **Side projects stay quiet.** They are hobbies, in their own section ("For fun",
   06): one line each, no screenshots, no cards, no metrics. The two with data
   behind them (sikui, NextPredictor) lend that real data to the model on hover;
-  their descriptions then sit in a caption under it, in one fixed place.
+  their descriptions then sit in a caption under it, in one fixed place. On a
+  phone there is no hover: the stage shows each project's view as its row
+  scrolls up under it.
 - **No invented facts.** Titles, dates, journals, mechanisms and wavelengths come
   from `src/content/data.js`, which was built from his CV and PubMed. If you think
   something is wrong, flag it, do not silently change it.
@@ -137,7 +139,10 @@ A change is finished when all of these hold.
 - Works at 390px, 768px, 1280px and 1920px wide.
 - No horizontal page scroll at any width.
 - At least a 16px gutter at every width.
-- The rail collapses to a top bar below 1080px; the model drops behind the text.
+- The rail collapses to a top bar below 1080px. The model never goes behind the
+  text there: it takes the lower part of the first screen, then each section
+  with a view (Now, Research, For fun, Connect) opens on a stage held under the
+  bar while its text scrolls beneath, and nothing is drawn between stages.
 
 **Accessibility**
 - Every control reachable and operable by keyboard, with a visible focus ring.

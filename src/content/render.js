@@ -39,13 +39,12 @@ const eyebrow = (i) => `<span class="tag"><em aria-hidden="true">${n2(i)} — </
 const head = (i, html) => `<h2 id="${esc(C.sections[i].id)}-title">${html}</h2>`
 
 /**
- * Where a phone shows the model: a block of its own in each section that has
- * a view, which the canvas moves into while it is on screen. Above 1080px the
- * model sits beside the column instead and these stay out of the layout.
- * `at` is where in the section the block stands (mockup round: each variant
- * shows one of them). The note carries a line about what the view shows.
+ * Where a phone shows the model: a stage of its own at the head of each
+ * section that has a view, which the canvas moves into while it is on screen.
+ * Above 1080px the model sits beside the column instead and these stay out of
+ * the layout. The note carries a line about what the view is showing.
  */
-const fig = (i, at) => `<div class="fig fig-${at}" data-frame="${i}" aria-hidden="true"><span class="fig-note"></span></div>`
+const fig = (i) => `<div class="fig" data-frame="${i}" aria-hidden="true"><span class="fig-note"></span></div>`
 
 /**
  * Structured data. The page's whole job in search is to be the answer to this
@@ -133,16 +132,15 @@ function lede () {
       <p class="lede-p">${C.person.thesis}</p>
       <p class="sub">${aff}</p>
     </div>
-    ${fig(0, 'lede')}`
+    ${fig(0)}`
 }
 
 function now (i) {
   return `
-    ${fig(i, 'top')}
+    ${fig(i)}
     <div class="col">
       ${eyebrow(i)}
       ${head(i, C.now.heading)}
-      ${fig(i, 'in')}
       ${C.now.paragraphs.map((p) => `<p class="body">${p}</p>`).join('\n      ')}
       <p class="note">${C.now.note}</p>
     </div>`
@@ -162,11 +160,10 @@ function entry (e) {
 
 function research (i) {
   return `
-    ${fig(i, 'top')}
+    ${fig(i)}
     <div class="col">
       ${eyebrow(i)}
       ${head(i, C.research.heading)}
-      ${fig(i, 'in')}
       <p class="body">${C.research.intro}</p>
       <ul class="entries" role="list">${C.research.entries.map(entry).join('')}
       </ul>
@@ -237,11 +234,10 @@ function papers (i) {
 
 function fun (i) {
   return `
-    ${fig(i, 'top')}
+    ${fig(i)}
     <div class="col">
       ${eyebrow(i)}
       ${head(i, C.fun.heading)}
-      ${fig(i, 'in')}
       <ul class="entries" role="list">${C.projects.map(project).join('')}
       </ul>
     </div>
@@ -257,11 +253,10 @@ function contact (i) {
     .map((l) => `<li><a href="${esc(l.href)}"${offsite(l.href)}>${esc(l.label)}</a></li>`)
     .join('')
   return `
-    ${fig(i, 'top')}
+    ${fig(i)}
     <div class="col">
       ${eyebrow(i)}
       ${head(i, esc(C.contact.heading))}
-      ${fig(i, 'in')}
       <p class="body">${esc(C.contact.body)}</p>
       <ul class="links" role="list">${links}</ul>
     </div>`

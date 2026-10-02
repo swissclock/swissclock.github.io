@@ -1,5 +1,18 @@
 # Handoff: the mobile overhaul
 
+> **Status, 2 October 2026 (later the same day).** On branch `mobile-overhaul`,
+> not pushed. Of three mockups (figures, openers, stage) Evyatar chose **C, the
+> stage**: each section with a view opens on a block held under the bar
+> (`position: sticky`, 44svh) while its text scrolls beneath; the one canvas
+> moves into whichever block is on screen and nothing is drawn between them.
+> For fun follows the scroll: the row passing just under the stage chooses the
+> view (his request, instead of a "Show the data" button). Phone framings are
+> `phoneFrames` in `src/scene/frames.js`. Phones also draw a third of the
+> capillaries and every third Lotto draw. The light fix (a
+> `lostpointercapture` bubbling up from the button's labels) is unconfirmed on
+> iOS: the Simulator runtime still has to be installed. Desktop was checked
+> pixel-identical to `main`. Everything below is the original brief.
+
 Written 2 October 2026, at the end of the session that built the Research
 vasculature, the For fun section and the Connect tracts. **The desktop site is
 approved and live. The phone experience is not, and needs a proper redesign,

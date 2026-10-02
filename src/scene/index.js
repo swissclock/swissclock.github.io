@@ -272,11 +272,9 @@ export function createScene ({ canvas, cool, warm, cord, ink, dim, label, ground
   brain.rotation.set(0.06, wideFrames[0].spin, 0)
 
   // --- state ------------------------------------------------------------
-  /** The framings in use: the wide ones, or a phone's (see setLens). */
+  /** The framings in use: the wide ones, or a phone's (see setPhone). */
   let frames = wideFrames
   let frame = 0
-  /** Vertical shift of the image, in normalised coordinates (see setLens). */
-  let lensShift = 0
   let hotMix = frames[0].hot
   const pointer = { x: 0, y: 0 }
   const smoothed = { x: 0, y: 0 }
@@ -382,14 +380,6 @@ export function createScene ({ canvas, cool, warm, cord, ink, dim, label, ground
     }).catch((error) => console.warn(`Vessel geometry unavailable: ${error.message}`))
   }
 
-  function project () {
-    camera.updateProjectionMatrix()
-    // The principal point's offset lives in the third column; a positive
-    // shift there moves the whole image down, so this moves it up.
-    camera.projectionMatrix.elements[9] -= lensShift
-    camera.projectionMatrixInverse.copy(camera.projectionMatrix).invert()
-  }
-
   return {
     setFrame (index) {
       frame = Math.max(0, Math.min(frames.length - 1, index))
@@ -440,21 +430,14 @@ export function createScene ({ canvas, cool, warm, cord, ink, dim, label, ground
       // a narrow window shows more sky rather than less brain.
       const widen = aspect < REFERENCE_ASPECT ? REFERENCE_ASPECT / aspect : 1
       camera.fov = 2 * Math.atan(Math.tan((BASE_FOV * Math.PI) / 360) * widen) * (180 / Math.PI)
-      project()
+      camera.updateProjectionMatrix()
       shared.uPixelRatio.value = renderer.getPixelRatio()
       fitFun()
     },
 
-    /**
-     * Moves the image up by `shift` (normalised device units) without turning
-     * the camera, the way a shifted lens does: on a phone an opener keeps the
-     * foot of its block for the heading set over it.
-     */
-    setLens ({ shift = 0, phone = false } = {}) {
-      frames = phone ? phoneFrames : wideFrames
-      if (shift === lensShift) { fitFun(); return }
-      lensShift = shift
-      project()
+    /** Uses the framings composed for a phone's full-width stage, or not. */
+    setPhone (on) {
+      frames = on ? phoneFrames : wideFrames
       fitFun()
     },
 

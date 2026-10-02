@@ -237,30 +237,22 @@ footer {
 
 /* --- the model on a phone ------------------------------------------------
    No side to put the model on, and behind the text it can only ever be a
-   ghost. So every section that has a view gives it a block of its own, and
-   the one canvas moves into whichever block is on screen (main.js). Between
-   blocks the page is plain reading on clean ground.
-
-   Mockup round: html.m-a, m-b and m-c choose where the blocks stand.
-     a  figures   a block under each section's heading, scrolling with it
-     b  openers   a screen-high block that opens the section, its heading
-                  set over the foot of the view
-     c  stage     a block held at the top of the screen while its section's
-                  text scrolls up beneath it */
+   ghost. So the opening gives it the lower part of the first screen, and every
+   later section that has a view opens on a stage: a block held under the bar
+   for as long as the section lasts, while its text scrolls up beneath it. The
+   one canvas moves into whichever block is on screen (main.js). Sections
+   without a view are plain reading on clean ground. */
 
 .fig { display: none; }
 
 @media (max-width: 1080px) {
   .fig {
+    display: block;
     position: relative;
     -webkit-touch-callout: none;
     -webkit-user-select: none;
     user-select: none;
   }
-  .fig-lede,
-  html.m-a .fig-in,
-  html.m-b .fig-top,
-  html.m-c .fig-top { display: block; }
 
   /* In a block the canvas is an ordinary absolutely placed child: it scrolls
      with the page natively, with nothing to keep in step from script. */
@@ -270,6 +262,9 @@ footer {
     width: 100%;
     height: 100%;
   }
+  /* Until script has moved it into a block, the canvas would sit fixed behind
+     the text: the one place on a phone it must never be. */
+  body > #gl { visibility: hidden; }
 
   .fig-note {
     position: absolute;
@@ -284,52 +279,21 @@ footer {
     pointer-events: none;
   }
 
-  /* Until script has moved it into a block, the canvas would sit fixed behind
-     the text: the one place on a phone it must never be. */
-  body > #gl { visibility: hidden; }
+  /* A link to a section brings it in below the bar, where its stage holds,
+     rather than under it, where the stage would cover the heading. */
+  html { scroll-padding-top: var(--bar-h, 84px); }
 
-  /* The opening keeps what it had: the lower part of the first screen,
-     under the lede, is the model's. */
   #lede {
     padding-top: max(108px, 14svh);
     padding-bottom: 0;
   }
-  .fig-lede {
+  #lede > .fig {
     flex: 1 1 auto;
     min-height: 260px;
     margin-top: 1.5rem;
   }
 
-  /* a: a figure under the heading, the width of the screen. */
-  .fig-in {
-    width: 100vw;
-    margin: 1.6rem 0 1.8rem calc(-1 * var(--edge));
-    height: min(64svh, 118vw);
-  }
-
-  /* b: the section opens on its view; the heading sits over the foot of it,
-     where a fade to ground keeps the lines on clean pixels. */
-  html.m-b section > .fig-top {
-    height: calc(100svh - var(--bar-h, 84px));
-    margin-top: calc(-1 * var(--section-y));
-  }
-  html.m-b section > .fig-top::after {
-    content: '';
-    position: absolute;
-    left: 0; right: 0; bottom: 0;
-    height: 42%;
-    background: linear-gradient(transparent, var(--bg) 78%);
-    pointer-events: none;
-  }
-  html.m-b section > .fig-top + .col {
-    position: relative;
-    z-index: 2;
-    margin-top: -11.5rem;
-  }
-
-  /* c: the view holds under the bar for as long as its section lasts, and
-     the text runs up under it. */
-  html.m-c section > .fig-top {
+  section:not(#lede) > .fig {
     position: sticky;
     top: var(--bar-h, 84px);
     z-index: 2;
@@ -338,7 +302,8 @@ footer {
     margin-bottom: 1.4rem;
     background: var(--bg);
   }
-  html.m-c section > .fig-top::after {
+  /* The text passes under the stage through a short fade, not a hard edge. */
+  section:not(#lede) > .fig::after {
     content: '';
     position: absolute;
     left: 0; right: 0; top: 100%;
