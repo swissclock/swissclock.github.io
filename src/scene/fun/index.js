@@ -6,6 +6,8 @@
  *
  *   lotto     every number's tally against chance, as random walks (walks.js)
  *   football  the league played out 20,000 times, as a ridgeline (seasons.js)
+ *   aquascape the game's showcase tank through a day (tank.js)
+ *   tuner     a plucked string and the YIN curve that finds its pitch (strings.js)
  *
  * Every project's view is fitted to the same place on screen: as wide as the
  * landscape, standing on the last project in the list, and never rising past
@@ -17,6 +19,8 @@ import { approach, smooth } from './common.js'
 import { createLandscape } from './landscape.js'
 import { createWalks } from './walks.js'
 import { createSeasons } from './seasons.js'
+import { createTank } from './tank.js'
+import { createStrings } from './strings.js'
 
 export async function loadFun (url) {
   const response = await fetch(url)
@@ -49,7 +53,9 @@ export function createFun (data, parent, shared, shell, colours, { light = false
   const landscape = createLandscape(context)
   const views = {
     lotto: createWalks(data.lotto, context),
-    football: createSeasons(data.football.seasons, context)
+    football: createSeasons(data.football.seasons, context),
+    aquascape: createTank(context),
+    tuner: createStrings(context)
   }
   group.add(landscape.group, ...Object.values(views).map((v) => v.group))
 
@@ -58,7 +64,7 @@ export function createFun (data, parent, shared, shell, colours, { light = false
   let view = null
 
   return {
-    /** Which project's data to show: 'lotto', 'football', or null for the landscape. */
+    /** Which project's view to show: 'lotto', 'football', 'aquascape', 'tuner', or null for the landscape. */
     setView (name) {
       view = name in views ? name : null
     },

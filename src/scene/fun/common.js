@@ -3,7 +3,7 @@
  * the light's warmth, so each view only describes its own picture.
  */
 
-import { CanvasTexture, Sprite, SpriteMaterial } from 'three'
+import { AdditiveBlending, CanvasTexture, Color, DoubleSide, ShaderMaterial, Sprite, SpriteMaterial } from 'three'
 
 /** Depth fade and warmth, the same rules the shell follows. */
 export const glslCommon = /* glsl */ `
@@ -76,5 +76,111 @@ export function spikes () {
     const run = state.time - last > 0.9
     last = state.time
     return { run }
+  }
+}
+
+const traceVertex = /* glsl */ `
+attribute float aT;
+uniform float uAmount;
+uniform float uReveal;
+${glslCommon}
+varying float vAlpha;
+void main() {
+  vec4 mv = modelViewMatrix * vec4(position, 1.0);
+  gl_Position = projectionMatrix * mv;
+  vAlpha = step(aT, uReveal) * uAmount * depthFade(-mv.z);
+}
+`
+
+const traceFragment = /* glsl */ `
+uniform vec3 uColour;
+uniform vec3 uWarm;
+uniform float uSuppression;
+uniform float uOpacity;
+varying float vAlpha;
+void main() { gl_FragColor = vec4(mix(uColour, uWarm, uSuppression * 0.7), vAlpha * uOpacity); }
+`
+
+/**
+ * A line drawn in one colour, revealed along `aT` (0 to 1; leave the attribute
+ * out and it shows whole). `uColour` and `uOpacity` are its own to change.
+ */
+export function traceMaterial (shared, colour, opacity = 1) {
+  return new ShaderMaterial({
+    uniforms: {
+      uPixelRatio: shared.uPixelRatio, uDepthRef: shared.uDepthRef, uSuppression: shared.uSuppression,
+      uWarm: shared.uWarm, uAmount: { value: 0 }, uReveal: { value: 1 },
+      uColour: { value: colour.clone() }, uOpacity: { value: opacity }
+    },
+    vertexShader: traceVertex, fragmentShader: traceFragment,
+    transparent: true, depthWrite: false, blending: AdditiveBlending
+  })
+}
+
+const dotsVertex = /* glsl */ `
+attribute float aSize;
+attribute float aAlpha;
+uniform float uAmount;
+${glslCommon}
+varying float vAlpha;
+void main() {
+  vec4 mv = modelViewMatrix * vec4(position, 1.0);
+  gl_Position = projectionMatrix * mv;
+  vAlpha = aAlpha * uAmount * depthFade(-mv.z);
+  gl_PointSize = aSize * uPixelRatio * (25.0 / -mv.z);
+}
+`
+
+const dotsFragment = /* glsl */ `
+uniform vec3 uColour;
+uniform vec3 uWarm;
+uniform float uSuppression;
+uniform float uGlow;
+${glslDot}
+varying float vAlpha;
+void main() { gl_FragColor = vec4(mix(uColour, uWarm, uSuppression * 0.7), vAlpha * dot2(uGlow)); }
+`
+
+/** Points with their own size and alpha per vertex (`aSize`, `aAlpha`). */
+export function dotsMaterial (shared, colour, glow = 0) {
+  return new ShaderMaterial({
+    uniforms: {
+      uPixelRatio: shared.uPixelRatio, uDepthRef: shared.uDepthRef, uSuppression: shared.uSuppression,
+      uWarm: shared.uWarm, uAmount: { value: 0 }, uColour: { value: colour.clone() }, uGlow: { value: glow }
+    },
+    vertexShader: dotsVertex, fragmentShader: dotsFragment,
+    transparent: true, depthWrite: false, blending: AdditiveBlending
+  })
+}
+
+// Written raw, like every other material here: three's built-in materials
+// convert their colour for the screen, which turns the ground grey.
+const fillVertex = /* glsl */ `
+void main() { gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }
+`
+const fillFragment = /* glsl */ `
+uniform vec3 uGround;
+uniform float uOpacity;
+void main() { gl_FragColor = vec4(uGround, uOpacity); }
+`
+
+/** The page's ground colour, for shapes that hide what stands behind them. */
+export function groundMaterial (ground) {
+  return new ShaderMaterial({
+    uniforms: { uGround: { value: new Color(ground) }, uOpacity: { value: 0 } },
+    vertexShader: fillVertex, fragmentShader: fillFragment,
+    side: DoubleSide, transparent: true, depthWrite: true
+  })
+}
+
+/** A small seeded generator, so a scene is laid out the same on every visit. */
+export function seeded (seed) {
+  let s = seed >>> 0
+  return () => {
+    s = (s + 0x6D2B79F5) >>> 0
+    let t = s
+    t = Math.imul(t ^ (t >>> 15), t | 1)
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61)
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296
   }
 }

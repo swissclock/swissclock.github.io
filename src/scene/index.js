@@ -396,7 +396,7 @@ export function createScene ({ canvas, cool, warm, cord, ink, dim, label, ground
       turn.at = lastTime
     },
 
-    /** Which side project's data to show: 'lotto', 'football', or null for the landscape. */
+    /** Which side project's view to show: 'lotto', 'football', 'aquascape', 'tuner', or null for the landscape. */
     setView (name) {
       funView = name
       fun?.setView(name)

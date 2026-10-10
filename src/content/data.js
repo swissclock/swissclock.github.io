@@ -188,15 +188,16 @@ export const papersVisible = 5
 
 /**
  * Side projects. These are hobbies: one line each, no screenshots, no cards,
- * no metrics. The two with data behind them lend it to the model, and `viz`
- * names which view of it each one shows; the first is the view at rest.
+ * no metrics. The ones with a model or data behind them lend it to the scene,
+ * and `viz` names which view each one shows.
  */
 export const projects = [
   { kind: 'Stats', label: 'סיכוי', lang: 'he', dir: 'rtl', href: 'https://sikui.vercel.app', about: 'Every Israeli Lotto draw since 1968, tested for randomness.', viz: 'lotto' },
   { kind: 'Model', label: 'NextPredictor', href: 'https://nextpredictor.vercel.app', about: 'Football match probabilities, logged before kickoff.', viz: 'football' },
+  { kind: 'Sim', label: 'Aquascape Studio', href: 'https://aquascape-studio.vercel.app', about: 'Planted tanks in the browser, from hardscape to livestock.', viz: 'aquascape' },
   { kind: 'Game', label: 'Brainrot Crush', href: 'https://brainrot-crush.vercel.app' },
-  { kind: 'Tool', label: 'מחשבון קלוריות', lang: 'he', dir: 'rtl', href: 'https://calorie-calculator-heb.vercel.app', about: 'A Hebrew calorie and carb counter.' },
-  { kind: 'Macro', label: 'Olympus slide scans to PNG', href: 'https://github.com/swissclock/VSI-to-PNG' }
+  { kind: 'Tool', label: 'Tuner', href: 'https://simple-tuner.vercel.app', about: 'A guitar tuner and metronome that runs in the browser.', viz: 'tuner' },
+  { kind: 'Tool', label: 'מחשבון קלוריות', lang: 'he', dir: 'rtl', href: 'https://calorie-calculator-heb.vercel.app', about: 'A Hebrew calorie and carb counter.' }
 ]
 
 // The model's data: the 1,958 draws of the current 6-of-37 format (chi-square
